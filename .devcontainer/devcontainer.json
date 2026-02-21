@@ -1,0 +1,26 @@
+{
+  "name": "corecast-jazzy",
+  "image": "corecast/dev:jazzy-24.04",
+  "initializeCommand": "earthly +devcontainer-image",
+  "workspaceFolder": "/workspaces/CoreCast",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/CoreCast,type=bind",
+  "features": {},
+  "remoteEnv": {
+    "ROS_DISTRO": "jazzy"
+  },
+  "postCreateCommand": "bash -lc 'source /opt/ros/jazzy/setup.bash && cd ros2_ws && colcon build --event-handlers console_direct+'",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools",
+        "ms-python.python",
+        "ms-iot.vscode-ros"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+      }
+    }
+  }
+}
