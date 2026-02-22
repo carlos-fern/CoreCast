@@ -23,15 +23,17 @@ int main()
     raygen_program.name = "raygen";
     raygen_program.options = {};
     raygen_program.desc = {};
+    raygen_program.desc.kind = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
+    raygen_program.desc.raygen.entryFunctionName = "__raygen__draw_solid_color";
 
     std::string pipeline_name = "raygen_pipeline";
-    std::string module_name = "raygen_module";
+    std::string module_name = raygen_program.name;
     std::string sbt_name = "raygen_sbt";
     RayGenData data = {0.462f, 0.725f, 0.f};
     std::vector<std::string> program_names = {raygen_program.name};
 
     std::cout << "Creating module" << std::endl;
-    optix.create_module(raygen_program.name, pipeline_compile_options, module_compile_options);
+    optix.create_module(module_name, pipeline_compile_options, module_compile_options);
     std::cout << "Adding program to module" << std::endl;
     optix.add_program_to_module(module_name, raygen_program);
     std::cout << "Building pipeline" << std::endl;
