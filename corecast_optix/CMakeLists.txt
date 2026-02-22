@@ -5,13 +5,18 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 20)
 endif()
 
-set(OPTIX_SDK_PATH "" CACHE PATH "Path to local NVIDIA OptiX SDK")
+set(DEFAULT_OPTIX_SDK_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/NVIDIA-OptiX-SDK-9.0.0-linux64-x86_64")
+set(OPTIX_SDK_PATH "${DEFAULT_OPTIX_SDK_PATH}" CACHE PATH "Path to local NVIDIA OptiX SDK")
 if(NOT OPTIX_SDK_PATH)
   message(FATAL_ERROR "OPTIX_SDK_PATH is not set. Pass -DOPTIX_SDK_PATH=/path/to/NVIDIA-OptiX-SDK")
 endif()
 
 if(NOT EXISTS "${OPTIX_SDK_PATH}/include/optix.h")
-  message(FATAL_ERROR "optix.h not found in ${OPTIX_SDK_PATH}/include. Check OPTIX_SDK_PATH.")
+  message(FATAL_ERROR
+    "optix.h not found in ${OPTIX_SDK_PATH}/include.\n"
+    "For NVIDIA driver R580, use OptiX 9.0.0 (R570+ compatible).\n"
+    "Place it at ${DEFAULT_OPTIX_SDK_PATH} or pass -DOPTIX_SDK_PATH=/path/to/NVIDIA-OptiX-SDK-9.0.0-linux64-x86_64"
+  )
 endif()
 
 find_package(CUDAToolkit REQUIRED)
