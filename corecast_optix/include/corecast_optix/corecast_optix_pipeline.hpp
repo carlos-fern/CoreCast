@@ -22,6 +22,7 @@ public:
                         const OptixPipelineLinkOptions& link_options, 
                         const std::vector<std::string>& program_names);
   ~CoreCastOptixPipeline();
+  OptixPipeline get_pipeline() const { return pipeline_; }
 
 private:
   std::shared_ptr<CoreCastOptixContext> context_;

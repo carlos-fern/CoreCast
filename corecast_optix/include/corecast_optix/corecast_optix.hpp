@@ -37,7 +37,7 @@ class CoreCastOptix
         program_registry_->register_program(program, *modules_[module_name]);
     }
 
-    void build_pipeline(std::string &pipeline_name, std::vector<std::string> &program_names, OptixPipelineLinkOptions& link_options){
+    void build_pipeline(std::string &pipeline_name, std::vector<std::string> program_names, OptixPipelineLinkOptions& link_options){
 
         pipelines_[pipeline_name] = std::make_shared<CoreCastOptixPipeline>(context_, program_registry_, modules_[program_names[0]], link_options, program_names);
     }
@@ -50,7 +50,7 @@ class CoreCastOptix
 
     void launch_pipeline(std::string &pipeline_name, Params& params, std::string &sbt_name){
 
-        launchers_[pipeline_name] = std::make_shared<CoreCastOptixLaunch>(context_, params, pipelines_[pipeline_name]->get_pipeline(), sbts_[sbt_name]);
+       // launchers_[pipeline_name] = std::make_shared<CoreCastOptixLaunch>(context_, params, pipelines_[pipeline_name]->get_pipeline(), sbts_[sbt_name]);
     }
 
     private:

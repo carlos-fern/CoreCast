@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <memory>
 #include <optix.h>
+#include <optix_stubs.h>
 #include <string>
 
 #include <sutil/Exception.h>
@@ -32,7 +33,7 @@ class CoreCastOptixSBT
 
         host_record_ptr_->data = data;
         OPTIX_CHECK(optixSbtRecordPackHeader(program_registry.get_program_group(program_name), host_record_ptr_.get()));
-        CUDA_CHECK(cudaMemcpy(device_ptr_, host_record_ptr_.get(), host_record_size_, cudaMemcpyHostToDevice));
+        CUDA_CHECK(cudaMemcpy(reinterpret_cast<void*>(device_ptr_), host_record_ptr_.get(), host_record_size_, cudaMemcpyHostToDevice));
     }
 
 

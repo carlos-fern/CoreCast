@@ -12,7 +12,7 @@ class CoreCastOptixLaunch
 {
 
     public:
-    CoreCastOptixLaunch(std::shared_ptr<CoreCastOptixContext> context, Params& params, OptixPipeline& pipeline, OptixShaderBindingTable& sbt): context_(context), params_(params), output_buffer_(sutil::CUDAOutputBufferType::CUDA_DEVICE, params_.image_width, params_.image_height){
+    CoreCastOptixLaunch(std::shared_ptr<CoreCastOptixContext> context, Params& params, OptixPipeline pipeline, OptixShaderBindingTable& sbt): context_(context), params_(params), output_buffer_(sutil::CUDAOutputBufferType::CUDA_DEVICE, params_.image_width, params_.image_height){
 
         CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&d_param_), sizeof(params_)));
         CUDA_CHECK(cudaMemcpy(reinterpret_cast<void*>(d_param_), &params_, sizeof(params), cudaMemcpyHostToDevice));
