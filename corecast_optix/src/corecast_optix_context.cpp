@@ -12,6 +12,16 @@ namespace corecast_optix
 
 namespace
 {
+void check_cuda(cudaError_t result, const char* expr)
+{
+  if (result != cudaSuccess) {
+    std::ostringstream oss;
+    oss << "CUDA call failed (" << static_cast<int>(result) << "): " << expr
+        << " - " << cudaGetErrorString(result);
+    throw std::runtime_error(oss.str());
+  }
+}
+
 void check_optix(OptixResult result, const char* expr)
 {
   if (result != OPTIX_SUCCESS) {
@@ -24,6 +34,8 @@ void check_optix(OptixResult result, const char* expr)
 
 CoreCastOptixContext::CoreCastOptixContext()
 {
+  // Force CUDA runtime initialization so current context can be queried.
+  check_cuda(cudaFree(0), "cudaFree(0)");
   CUcontext cuCtx = 0;  // zero means take the current context
   check_optix(optixInit(), "optixInit()");
   OptixDeviceContextOptions options = {};
