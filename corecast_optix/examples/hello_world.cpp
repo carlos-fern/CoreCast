@@ -7,8 +7,11 @@ int main()
 {
 
     std::cout << "Starting CoreCastOptix example" << std::endl;
-    
-    corecast_optix::CoreCastOptix optix;
+
+    OptixDeviceContextOptions options = {};
+    options.logCallbackLevel = 4;  
+    CUcontext cuCtx = 0;
+    corecast_optix::CoreCastOptix optix(cuCtx, options);
 
     std::cout << "CoreCastOptix created" << std::endl;
 

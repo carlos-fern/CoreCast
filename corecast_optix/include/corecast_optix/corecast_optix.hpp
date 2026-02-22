@@ -20,8 +20,8 @@ namespace corecast_optix
 class CoreCastOptix
 {
     public:
-    CoreCastOptix(){
-        context_ = std::make_shared<CoreCastOptixContext>();
+    CoreCastOptix(CUcontext context_id, OptixDeviceContextOptions& options){
+        context_ = std::make_shared<CoreCastOptixContext>(context_id, options);
         program_registry_ = std::make_shared<CoreCastOptixProgramRegistry>(context_);
     }
     ~CoreCastOptix() = default;
