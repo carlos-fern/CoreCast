@@ -1,13 +1,22 @@
 #pragma once
 
 #include <optix.h>
-
 #include <cuda_runtime.h>
+#include <memory>
+
+#include <sutil/sutil.h>
+#include <sutil/Exception.h>
 
 #include "corecast_optix/corecast_optix_context.hpp"
 
 namespace corecast_optix
 {
+
+struct Params
+{
+    uchar4* image;
+    unsigned int image_width;
+};
 
 class CoreCastOptixModule
 {
@@ -16,8 +25,8 @@ public:
   ~CoreCastOptixModule();
 
   OptixModule get_module() const { return module_; }
-  OptixPipelineCompileOptions get_pipeline_compile_options() const { return pipeline_compile_options_; }
-  OptixModuleCompileOptions get_module_compile_options() const { return module_compile_options_; }
+  const OptixPipelineCompileOptions& get_pipeline_compile_options() const { return pipeline_compile_options_; }
+  const OptixModuleCompileOptions& get_module_compile_options() const { return module_compile_options_; }
   
  private:
   std::shared_ptr<CoreCastOptixContext> context_;

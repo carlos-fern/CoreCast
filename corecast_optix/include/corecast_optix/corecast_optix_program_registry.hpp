@@ -1,16 +1,24 @@
 #pragma once
 
 #include <optix.h>
-
 #include <cuda_runtime.h>
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include <sutil/Exception.h>
+
+#include "corecast_optix/corecast_optix_context.hpp"
+#include "corecast_optix/corecast_optix_module.hpp"
 
 namespace corecast_optix
 {
-struct CoreCastProgram{
-    std::string name;
-    OptixProgramGroupOptions options;
-    OptixProgramGroupDesc desc;
-}
+struct CoreCastProgram {
+  std::string name;
+  OptixProgramGroupOptions options{};
+  OptixProgramGroupDesc desc{};
+};
 
 class CoreCastOptixProgramRegistry
 {
@@ -23,9 +31,9 @@ public:
   std::vector<OptixProgramGroup> get_program_groups(const std::vector<std::string>& names) const;
     
 private:
-std::shared_ptr<CoreCastOptixContext> context_;
-std::map<std::string, OptixProgramGroup> program_groups_;
-std::map<std::string, CoreCastProgram> program_descriptions_;
+  std::shared_ptr<CoreCastOptixContext> context_;
+  std::map<std::string, OptixProgramGroup> program_groups_;
+  std::map<std::string, CoreCastProgram> program_descriptions_;
 
 };
 

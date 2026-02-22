@@ -16,6 +16,23 @@ endif()
 
 find_package(CUDAToolkit REQUIRED)
 
+set(SAMPLES_DIR "${OPTIX_SDK_PATH}/SDK")
+set(SAMPLES_PTX_DIR "${CMAKE_CURRENT_BINARY_DIR}/ptx")
+set(SAMPLES_CUDA_DIR "${OPTIX_SDK_PATH}/SDK/cuda")
+set(SAMPLES_RELATIVE_INCLUDE_DIRS {})
+set(SAMPLES_ABSOLUTE_INCLUDE_DIRS {})
+set(OPTIX_OPTIXIR_BUILD_CONFIGURATION "Release")
+set(CUDA_NVRTC_ENABLED 1)
+set(CUDA_NVRTC_OPTIONS "{\"--std=c++17\"}")
+set(CUDA_NVRTC_OPTIONS_DEBUG "{\"--std=c++17\"}")
+set(SAMPLES_INPUT_GENERATE_OPTIXIR 1)
+set(SAMPLES_INPUT_GENERATE_PTX 0)
+
+configure_file(
+  "${OPTIX_SDK_PATH}/SDK/sampleConfig.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/generated/sampleConfig.h"
+)
+
 add_library(corecast_optix
   src/corecast_optix_context.cpp
   src/corecast_optix_program_registry.cpp
@@ -27,6 +44,9 @@ target_include_directories(corecast_optix
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${OPTIX_SDK_PATH}/include>
+    $<BUILD_INTERFACE:${OPTIX_SDK_PATH}/SDK>
+    $<BUILD_INTERFACE:${OPTIX_SDK_PATH}/SDK/support>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated>
     $<INSTALL_INTERFACE:include>
 )
 

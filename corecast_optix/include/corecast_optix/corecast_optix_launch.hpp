@@ -3,6 +3,7 @@
 #include <optix.h>
 
 #include <cuda_runtime.h>
+#include <sutil/CUDAOutputBuffer.h>
 
 namespace corecast_optix
 {

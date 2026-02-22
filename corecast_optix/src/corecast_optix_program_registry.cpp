@@ -1,5 +1,9 @@
 #include "corecast_optix/corecast_optix_program_registry.hpp"
 
+#include <optix_stubs.h>
+#include <sstream>
+#include <stdexcept>
+
 namespace corecast_optix
 {
 

@@ -1,8 +1,14 @@
 #pragma once
 
 #include <optix.h>
-
 #include <cuda_runtime.h>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "corecast_optix/corecast_optix_context.hpp"
+#include "corecast_optix/corecast_optix_module.hpp"
+#include "corecast_optix/corecast_optix_program_registry.hpp"
 
 namespace corecast_optix
 {
@@ -22,6 +28,7 @@ private:
   std::shared_ptr<CoreCastOptixProgramRegistry> program_registry_;
   std::shared_ptr<CoreCastOptixModule> module_;
   OptixPipelineLinkOptions link_options_;
+  std::vector<std::string> program_names_;
   OptixPipeline pipeline_;
 };
 

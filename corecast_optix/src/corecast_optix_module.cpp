@@ -22,7 +22,7 @@ CoreCastOptixModule::CoreCastOptixModule(std::shared_ptr<CoreCastOptixContext> c
     const char* input = sutil::getInputData( OPTIX_SAMPLE_NAME, OPTIX_SAMPLE_DIR, "draw_solid_color.cu", inputSize );
 
     OPTIX_CHECK_LOG( optixModuleCreate(
-                context_->context_,
+                context_->get_context(),
                 &module_compile_options_,
                 &pipeline_compile_options_,
                 input,
