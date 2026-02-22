@@ -3,7 +3,15 @@
 namespace corecast_optix
 {
 
-CoreCastOptixPipeline::CoreCastOptixPipeline(std::shared_ptr<CoreCastOptixContext> context, std::shared_ptr<CoreCastOptixProgramRegistry> program_registry, std::shared_ptr<CoreCastOptixModule> module, OptixPipelineLinkOptions& link_options, std::vector<std::string>& program_names) : context_(context), program_registry_(program_registry), module_(module), link_options_(link_options), program_names_(program_names)
+CoreCastOptixPipeline::CoreCastOptixPipeline(std::shared_ptr<CoreCastOptixContext> context, 
+                                            std::shared_ptr<CoreCastOptixProgramRegistry> program_registry, 
+                                            std::shared_ptr<CoreCastOptixModule> module, 
+                                            const OptixPipelineLinkOptions& link_options, 
+                                            const std::vector<std::string>& program_names) : context_(context), 
+                                                                                            program_registry_(program_registry), 
+                                                                                            module_(module), 
+                                                                                            link_options_(link_options),
+                                                                                            program_names_(program_names)
 {
     std::vector<OptixProgramGroup> groups = program_registry_->get_program_groups(program_names);
 

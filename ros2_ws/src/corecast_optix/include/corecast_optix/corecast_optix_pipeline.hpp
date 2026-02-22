@@ -10,7 +10,11 @@ namespace corecast_optix
 class CoreCastOptixPipeline
 {
 public:
-  CoreCastOptixPipeline(std::shared_ptr<CoreCastOptixContext> context, std::shared_ptr<CoreCastOptixProgramRegistry> program_registry, std::shared_ptr<CoreCastOptixModule> module, OptixPipelineLinkOptions& link_options, std::vector<std::string>& program_names);
+  CoreCastOptixPipeline(std::shared_ptr<CoreCastOptixContext> context, 
+                        std::shared_ptr<CoreCastOptixProgramRegistry> program_registry, 
+                        std::shared_ptr<CoreCastOptixModule> module, 
+                        const OptixPipelineLinkOptions& link_options, 
+                        const std::vector<std::string>& program_names);
   ~CoreCastOptixPipeline();
 
 private:
