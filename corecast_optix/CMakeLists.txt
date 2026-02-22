@@ -55,6 +55,15 @@ target_link_libraries(corecast_optix
     CUDA::cudart
 )
 
+add_executable(corecast_optix_hello_world
+  examples/hello_world.cpp
+)
+
+target_link_libraries(corecast_optix_hello_world
+  PRIVATE
+    corecast_optix
+)
+
 install(TARGETS corecast_optix
   DESTINATION lib
 )

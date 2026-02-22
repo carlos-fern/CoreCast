@@ -18,7 +18,7 @@ class CoreCastOptixSBT
 {
 
     public:
-    CoreCastOptixSBT(std::string program_name, CoreCastOptixSBTType type, CoreCastOptixProgramRegistry& program_registry, DataType data){
+    CoreCastOptixSBT(std::string program_name, CoreCastOptixProgramRegistry& program_registry, DataType data){
 
         host_record_ptr_ = std::make_unique<RecordType>();
         host_record_size_ = sizeof(SbtRecord<RecordType>);
