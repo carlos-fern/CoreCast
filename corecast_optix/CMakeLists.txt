@@ -1,15 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
-project(corecast_optix)
+project(corecast_optix LANGUAGES CXX)
 
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 20)
 endif()
-
-find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(sensor_msgs REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(geometry_msgs REQUIRED)
 
 set(OPTIX_SDK_PATH "" CACHE PATH "Path to local NVIDIA OptiX SDK")
 if(NOT OPTIX_SDK_PATH)
@@ -20,36 +14,28 @@ if(NOT EXISTS "${OPTIX_SDK_PATH}/include/optix.h")
   message(FATAL_ERROR "optix.h not found in ${OPTIX_SDK_PATH}/include. Check OPTIX_SDK_PATH.")
 endif()
 
-add_library(${PROJECT_NAME}
+find_package(CUDAToolkit REQUIRED)
+
+add_library(corecast_optix
   src/corecast_optix_context.cpp
 )
 
-target_include_directories(${PROJECT_NAME}
+target_include_directories(corecast_optix
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${OPTIX_SDK_PATH}/include>
     $<INSTALL_INTERFACE:include>
 )
 
-ament_target_dependencies(${PROJECT_NAME}
-  rclcpp
-  sensor_msgs
-  std_msgs
-  geometry_msgs
+target_link_libraries(corecast_optix
+  PUBLIC
+    CUDA::cudart
 )
 
-install(TARGETS
-  ${PROJECT_NAME}
-  DESTINATION lib/${PROJECT_NAME}
+install(TARGETS corecast_optix
+  DESTINATION lib
 )
 
 install(DIRECTORY include/
   DESTINATION include
 )
-
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
-endif()
-
-ament_package()
