@@ -47,10 +47,12 @@ add_custom_command(
     --std=c++17
     -I"${OPTIX_SDK_PATH}/include"
     -I"${OPTIX_SDK_PATH}/SDK"
-    -I"${OPTIX_SDK_PATH}/SDK/optixHello"
-    "${OPTIX_SDK_PATH}/SDK/optixHello/draw_solid_color.cu"
+    -I"${CMAKE_CURRENT_SOURCE_DIR}/include"
+    -I"${CMAKE_CURRENT_SOURCE_DIR}/cuda_examples"
+    -I"${CMAKE_CURRENT_BINARY_DIR}/generated"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cuda_examples/draw_solid_color.cu"
     -o "${CORECAST_PTX_FILE}"
-  DEPENDS "${OPTIX_SDK_PATH}/SDK/optixHello/draw_solid_color.cu"
+  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/cuda_examples/draw_solid_color.cu"
   COMMENT "Generating OptiX PTX for draw_solid_color.cu"
 )
 add_custom_target(corecast_optix_ptx DEPENDS "${CORECAST_PTX_FILE}")
@@ -67,6 +69,7 @@ target_compile_definitions(corecast_optix PUBLIC CORECAST_PTX_PATH="${CORECAST_P
 target_include_directories(corecast_optix
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/cuda_examples>
     $<BUILD_INTERFACE:${OPTIX_SDK_PATH}/include>
     $<BUILD_INTERFACE:${OPTIX_SDK_PATH}/SDK>
     $<BUILD_INTERFACE:${OPTIX_SDK_PATH}/SDK/support>

@@ -9,6 +9,7 @@
 
 #include <sutil/Exception.h>
 
+#include "corecast_optix/corecast_optix_cuda_types.hpp"
 #include "corecast_optix/corecast_optix_program_registry.hpp"
 
 namespace corecast_optix
