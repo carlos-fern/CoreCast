@@ -8,16 +8,10 @@
 #include <sutil/Exception.h>
 
 #include "corecast_optix/corecast_optix_context.hpp"
+#include "corecast_optix/corecast_optix_cuda_types.hpp"
 
 namespace corecast_optix
 {
-
-struct Params
-{
-    uchar4* image;
-    unsigned int image_width;
-    unsigned int image_height;
-};
 
 class CoreCastOptixModule
 {

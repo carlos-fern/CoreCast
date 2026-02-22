@@ -32,16 +32,19 @@ void check_optix(OptixResult result, const char* expr)
 }
 }  // namespace
 
-CoreCastOptixContext::CoreCastOptixContext()
+CoreCastOptixContext::CoreCastOptixContext(CUcontext context_id, OptixDeviceContextOptions& options):
+  options_(options)
 {
   // Force CUDA runtime initialization so current context can be queried.
   check_cuda(cudaFree(0), "cudaFree(0)");
-  CUcontext cuCtx = 0;  // zero means take the current context
+  cuCtx_ = context_id;
+
+  if (options_.logCallbackFunction == nullptr){
+    options_.logCallbackFunction = &context_log_cb;
+  }
+
   check_optix(optixInit(), "optixInit()");
-  OptixDeviceContextOptions options = {};
-  options.logCallbackFunction = &context_log_cb;
-  options.logCallbackLevel = 4;
-  check_optix(optixDeviceContextCreate(cuCtx, &options, &this->context_), "optixDeviceContextCreate()");
+  check_optix(optixDeviceContextCreate(cuCtx_, &options_, &this->context_), "optixDeviceContextCreate()");
 }
 
 CoreCastOptixContext::~CoreCastOptixContext()
