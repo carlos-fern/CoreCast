@@ -2,5 +2,8 @@
 
 int main()
 {
-  return 0;
+
+    corecast_optix::CoreCastOptix optix;
+
+    return 0;
 }

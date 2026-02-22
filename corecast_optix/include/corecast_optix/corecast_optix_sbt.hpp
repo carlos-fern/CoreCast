@@ -1,8 +1,14 @@
 #pragma once
 
-#include <optix.h>
-
 #include <cuda_runtime.h>
+#include <cstddef>
+#include <memory>
+#include <optix.h>
+#include <string>
+
+#include <sutil/Exception.h>
+
+#include "corecast_optix/corecast_optix_program_registry.hpp"
 
 namespace corecast_optix
 {
@@ -21,7 +27,7 @@ class CoreCastOptixSBT
     CoreCastOptixSBT(std::string program_name, CoreCastOptixProgramRegistry& program_registry, DataType data){
 
         host_record_ptr_ = std::make_unique<RecordType>();
-        host_record_size_ = sizeof(SbtRecord<RecordType>);
+        host_record_size_ = sizeof(RecordType);
         CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&device_ptr_), host_record_size_));
 
         host_record_ptr_->data = data;
@@ -36,11 +42,11 @@ class CoreCastOptixSBT
     
     // Device pointer to the SBT record
     CUdeviceptr device_ptr_;
-    const size_t device_size_;
+    size_t device_size_{};
  
     // Host pointer to the SBT record
-    std::unique_ptr<SbtRecord<RecordType>> host_record_ptr_;
-    const size_t host_record_size_;
+    std::unique_ptr<RecordType> host_record_ptr_;
+    size_t host_record_size_{};
 
 
 };

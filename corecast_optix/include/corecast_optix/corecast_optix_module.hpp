@@ -22,7 +22,7 @@ struct Params
 class CoreCastOptixModule
 {
 public:
-  CoreCastOptixModule(std::shared_ptr<CoreCastOptixContext> context);
+  CoreCastOptixModule(std::shared_ptr<CoreCastOptixContext> context, OptixPipelineCompileOptions& pipeline_compile_options, OptixModuleCompileOptions& module_compile_options);
   ~CoreCastOptixModule();
 
   OptixModule get_module() const { return module_; }
