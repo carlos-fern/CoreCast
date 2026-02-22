@@ -38,12 +38,31 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/generated/sampleConfig.h"
 )
 
+set(CORECAST_PTX_FILE "${CMAKE_CURRENT_BINARY_DIR}/ptx/draw_solid_color.ptx")
+add_custom_command(
+  OUTPUT "${CORECAST_PTX_FILE}"
+  COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/ptx"
+  COMMAND ${CUDAToolkit_NVCC_EXECUTABLE}
+    --ptx
+    --std=c++17
+    -I"${OPTIX_SDK_PATH}/include"
+    -I"${OPTIX_SDK_PATH}/SDK"
+    -I"${OPTIX_SDK_PATH}/SDK/optixHello"
+    "${OPTIX_SDK_PATH}/SDK/optixHello/draw_solid_color.cu"
+    -o "${CORECAST_PTX_FILE}"
+  DEPENDS "${OPTIX_SDK_PATH}/SDK/optixHello/draw_solid_color.cu"
+  COMMENT "Generating OptiX PTX for draw_solid_color.cu"
+)
+add_custom_target(corecast_optix_ptx DEPENDS "${CORECAST_PTX_FILE}")
+
 add_library(corecast_optix
   src/corecast_optix_context.cpp
   src/corecast_optix_program_registry.cpp
   src/corecast_optix_module.cpp
   src/corecast_optix_pipeline.cpp
 )
+add_dependencies(corecast_optix corecast_optix_ptx)
+target_compile_definitions(corecast_optix PUBLIC CORECAST_PTX_PATH="${CORECAST_PTX_FILE}")
 
 target_include_directories(corecast_optix
   PUBLIC
