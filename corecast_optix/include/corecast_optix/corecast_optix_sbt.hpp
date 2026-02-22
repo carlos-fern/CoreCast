@@ -34,8 +34,24 @@ class CoreCastOptixSBT
         host_record_ptr_->data = data;
         OPTIX_CHECK(optixSbtRecordPackHeader(program_registry.get_program_group(program_name), host_record_ptr_.get()));
         CUDA_CHECK(cudaMemcpy(reinterpret_cast<void*>(device_ptr_), host_record_ptr_.get(), host_record_size_, cudaMemcpyHostToDevice));
+        sbt_ = {};
+        sbt_.raygenRecord = device_ptr_;
+        sbt_.missRecordBase = device_ptr_;
+        sbt_.missRecordStrideInBytes = static_cast<unsigned int>(host_record_size_);
+        sbt_.missRecordCount = 1;
+        sbt_.hitgroupRecordBase = device_ptr_;
+        sbt_.hitgroupRecordStrideInBytes = static_cast<unsigned int>(host_record_size_);
+        sbt_.hitgroupRecordCount = 1;
     }
 
+    ~CoreCastOptixSBT()
+    {
+        if (device_ptr_ != 0) {
+            CUDA_CHECK_NOTHROW(cudaFree(reinterpret_cast<void*>(device_ptr_)));
+        }
+    }
+
+    const OptixShaderBindingTable& get_sbt() const { return sbt_; }
 
     private:
 
