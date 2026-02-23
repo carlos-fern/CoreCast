@@ -2,28 +2,30 @@
 
 #include <cuda_runtime.h>
 #include <optix.h>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <stdexcept>
+#include <string>
+#include <vector>
 
-namespace corecast_optix {
+namespace corecast_optix
+{
+/**
+ * @brief Check if the CUDA call was successful.
+ * @param result The result of the CUDA call.
+ * @param expr The expression that was evaluated.
+ */
+void check_cuda(cudaError_t result, const char* expr);
 
-void check_cuda(cudaError_t result, const char *expr) {
-  if (result != cudaSuccess) {
-    std::ostringstream oss;
-    oss << "CUDA call failed (" << static_cast<int>(result) << "): " << expr
-        << " - " << cudaGetErrorString(result);
-    throw std::runtime_error(oss.str());
-  }
-}
+/**
+ * @brief Check if the OptiX call was successful.
+ * @param result The result of the OptiX call.
+ * @param expr The expression that was evaluated.
+ */
+void check_optix(OptixResult result, const char* expr);
 
-void check_optix(OptixResult result, const char *expr) {
-  if (result != OPTIX_SUCCESS) {
-    std::ostringstream oss;
-    oss << "OptiX call failed (" << static_cast<int>(result) << "): " << expr;
-    throw std::runtime_error(oss.str());
-  }
-}
+/**
+ * @brief Read the bytes of a file.
+ * @param path The path to the file.
+ * @return The bytes of the file.
+ */
+std::vector<char> read_file_bytes(const std::string& path);
 
-} // namespace corecast_optix
+}  // namespace corecast_optix

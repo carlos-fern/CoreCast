@@ -2,6 +2,8 @@
 #include "corecast_optix/corecast_optix_utils.hpp"
 #include <optix_function_table_definition.h>
 #include <optix_stubs.h>
+#include <iomanip>
+#include <iostream>
 
 namespace corecast_optix
 {

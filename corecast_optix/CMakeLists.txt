@@ -61,6 +61,7 @@ add_library(corecast_optix
   src/corecast_optix_context.cpp
   src/corecast_optix_program_registry.cpp
   src/corecast_optix_module.cpp
+  src/corecast_optix_utils.cpp
   src/corecast_optix_pipeline.cpp
 )
 add_dependencies(corecast_optix corecast_optix_ptx)
