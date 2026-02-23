@@ -89,7 +89,7 @@ int main()
 
     std::vector<uchar4> host_pixels(params.image_width * params.image_height);
     std::cout << "Getting result" << std::endl;
-    optix.get_result(params, host_pixels);
+    optix.get_result(pipeline_name, params, host_pixels);
 
     write_ppm(params, host_pixels);
 
