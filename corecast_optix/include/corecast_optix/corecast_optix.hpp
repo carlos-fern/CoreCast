@@ -20,47 +20,69 @@ namespace corecast_optix
 class CoreCastOptix
 {
     public:
-    CoreCastOptix(CUcontext context_id, OptixDeviceContextOptions& options){
-        context_ = std::make_shared<CoreCastOptixContext>(context_id, options);
-        program_registry_ = std::make_shared<CoreCastOptixProgramRegistry>(context_);
-    }
+    /**
+    * @brief Constructor for the CoreCastOptix class.
+    * @param context_id The CUDA context ID to use.
+    * @param options The options for the OptixDeviceContext.
+    */
+    CoreCastOptix(CUcontext context_id, OptixDeviceContextOptions& options);
+
+    /**
+    * @brief Destructor for the CoreCastOptix class.
+    */
     ~CoreCastOptix() = default;
 
-
-    void create_module(std::string &module_name, OptixPipelineCompileOptions& pipeline_compile_options, OptixModuleCompileOptions& module_compile_options){
-
-        modules_[module_name] = std::make_shared<CoreCastOptixModule>(context_, pipeline_compile_options, module_compile_options);
-    }
+    /**
+    * @brief Create a module.
+    * @param module_name The name of the module to create.
+    * @param pipeline_compile_options The options for the pipeline compile.
+    * @param module_compile_options The options for the module compile.
+    */
+    void create_module(std::string &module_name, OptixPipelineCompileOptions& pipeline_compile_options, OptixModuleCompileOptions& module_compile_options);
     
-    void add_program_to_module(std::string &module_name, CoreCastProgram& program){
-        
-        program_registry_->register_program(program, *modules_[module_name]);
-    }
+    /**
+    * @brief Add a program to a module.
+    * @param module_name The name of the module to add the program to.
+    * @param program The program to add to the module.
+    */
+    void add_program_to_module(std::string &module_name, CoreCastProgram& program);
 
-    void build_pipeline(std::string &pipeline_name, std::vector<std::string> program_names, OptixPipelineLinkOptions& link_options){
+    /**
+    * @brief Build a pipeline.
+    * @param pipeline_name The name of the pipeline to build.
+    * @param program_names The names of the programs to build the pipeline with.
+    * @param link_options The options for the pipeline link.
+    */
+    void build_pipeline(std::string &pipeline_name, std::vector<std::string> program_names, OptixPipelineLinkOptions& link_options);
 
-        pipelines_[pipeline_name] = std::make_shared<CoreCastOptixPipeline>(context_, program_registry_, modules_[program_names[0]], link_options, program_names);
-    }
+    /**
+    * @brief Launch a pipeline.
+    * @param pipeline_name The name of the pipeline to launch.
+    * @param params The parameters for the pipeline.
+    * @param sbt_name The name of the SBT to use for the pipeline.
+    */
+    void launch_pipeline(std::string &pipeline_name, Params& params, std::string &sbt_name);
+    
+    /**
+    * @brief Get the result from a pipeline.
+    * @param pipeline_name The name of the pipeline to get the result from.
+    * @param params The parameters for the pipeline.
+    * @param host_pixels The host pixels to store the result in.
+    */
+    void get_result(std::string &pipeline_name, corecast_optix::Params& params, std::vector<uchar4>& host_pixels);
 
+    /**
+    * @brief Create a SBT.
+    * @param sbt_name The name of the SBT to create.
+    * @param program_name The name of the program to create the SBT for.
+    * @param data The data to store in the SBT.
+    */
     template <typename RecordType, typename DataType>
     void create_sbt(std::string &sbt_name, std::string &program_name, DataType& data){
 
         auto sbt = std::make_shared<CoreCastOptixSBT<RecordType, DataType>>(program_name, *program_registry_, data);
         sbt_tables_[sbt_name] = sbt->get_sbt();
         sbts_[sbt_name] = sbt;
-    }
-
-    void launch_pipeline(std::string &pipeline_name, Params& params, std::string &sbt_name){
-        auto pipeline_it = pipelines_.find(pipeline_name);
-        if (pipeline_it == pipelines_.end()) {
-            throw std::runtime_error("Pipeline not found: " + pipeline_name);
-        }
-        auto sbt_it = sbt_tables_.find(sbt_name);
-        if (sbt_it == sbt_tables_.end()) {
-            throw std::runtime_error("SBT not found: " + sbt_name);
-        }
-
-        launchers_[pipeline_name] = std::make_shared<CoreCastOptixLaunch>(context_, params, pipeline_it->second->get_pipeline(), sbt_it->second);    
     }
 
     private:

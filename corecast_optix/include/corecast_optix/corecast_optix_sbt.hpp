@@ -7,8 +7,6 @@
 #include <optix_stubs.h>
 #include <string>
 
-#include <sutil/Exception.h>
-
 #include "corecast_optix/corecast_optix_cuda_types.hpp"
 #include "corecast_optix/corecast_optix_program_registry.hpp"
 
@@ -26,7 +24,13 @@ class CoreCastOptixSBT
 {
 
     public:
-    CoreCastOptixSBT(std::string program_name, CoreCastOptixProgramRegistry& program_registry, DataType data){
+    /**
+    * @brief Constructor for the CoreCastOptixSBT class.
+    * @param program_name The name of the program to create the SBT for.
+    * @param program_registry The program registry to use to get the program group.
+    * @param data The data to store in the SBT.
+    */
+    CoreCastOptixSBT(std::string program_name, CoreCastOptixProgramRegistry& program_registry, DataType data): sbt_({}){
 
         host_record_ptr_ = std::make_unique<RecordType>();
         host_record_size_ = sizeof(RecordType);
@@ -35,7 +39,7 @@ class CoreCastOptixSBT
         host_record_ptr_->data = data;
         OPTIX_CHECK(optixSbtRecordPackHeader(program_registry.get_program_group(program_name), host_record_ptr_.get()));
         CUDA_CHECK(cudaMemcpy(reinterpret_cast<void*>(device_ptr_), host_record_ptr_.get(), host_record_size_, cudaMemcpyHostToDevice));
-        sbt_ = {};
+        
         sbt_.raygenRecord = device_ptr_;
         sbt_.missRecordBase = device_ptr_;
         sbt_.missRecordStrideInBytes = static_cast<unsigned int>(host_record_size_);
@@ -45,6 +49,9 @@ class CoreCastOptixSBT
         sbt_.hitgroupRecordCount = 1;
     }
 
+    /**
+    * @brief Destructor for the CoreCastOptixSBT class.
+    */
     ~CoreCastOptixSBT()
     {
         if (device_ptr_ != 0) {
@@ -52,6 +59,10 @@ class CoreCastOptixSBT
         }
     }
 
+    /**
+    * @brief Get the SBT.
+    * @return The SBT.
+    */
     const OptixShaderBindingTable& get_sbt() const { return sbt_; }
 
     private:

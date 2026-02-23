@@ -7,9 +7,7 @@
 namespace corecast_optix
 {
 
-CoreCastOptixProgramRegistry::CoreCastOptixProgramRegistry(std::shared_ptr<CoreCastOptixContext> context) : context_(context)
-{
-}
+CoreCastOptixProgramRegistry::CoreCastOptixProgramRegistry(std::shared_ptr<CoreCastOptixContext> context) : context_(context) {}
 
 CoreCastOptixProgramRegistry::~CoreCastOptixProgramRegistry() = default;
 

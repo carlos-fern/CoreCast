@@ -21,24 +21,10 @@ endif()
 
 find_package(CUDAToolkit REQUIRED)
 
-set(SAMPLES_DIR "${OPTIX_SDK_PATH}/SDK")
-set(SAMPLES_PTX_DIR "${CMAKE_CURRENT_BINARY_DIR}/ptx")
-set(SAMPLES_CUDA_DIR "${OPTIX_SDK_PATH}/SDK/cuda")
-set(SAMPLES_RELATIVE_INCLUDE_DIRS {})
-set(SAMPLES_ABSOLUTE_INCLUDE_DIRS {})
-set(OPTIX_OPTIXIR_BUILD_CONFIGURATION "Release")
-set(CUDA_NVRTC_ENABLED 1)
-set(CUDA_NVRTC_OPTIONS "{\"--std=c++17\"}")
-set(CUDA_NVRTC_OPTIONS_DEBUG "{\"--std=c++17\"}")
-set(SAMPLES_INPUT_GENERATE_OPTIXIR 1)
 set(SAMPLES_INPUT_GENERATE_PTX 0)
 
-configure_file(
-  "${OPTIX_SDK_PATH}/SDK/sampleConfig.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/generated/sampleConfig.h"
-)
-
 set(CORECAST_PTX_FILE "${CMAKE_CURRENT_BINARY_DIR}/ptx/draw_solid_color.ptx")
+
 add_custom_command(
   OUTPUT "${CORECAST_PTX_FILE}"
   COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/ptx"
@@ -61,7 +47,10 @@ add_library(corecast_optix
   src/corecast_optix_context.cpp
   src/corecast_optix_program_registry.cpp
   src/corecast_optix_module.cpp
+  src/corecast_optix_utils.cpp
   src/corecast_optix_pipeline.cpp
+  src/corecast_optix.cpp
+  src/corecast_optix_launch.cpp
 )
 add_dependencies(corecast_optix corecast_optix_ptx)
 target_compile_definitions(corecast_optix PUBLIC CORECAST_PTX_PATH="${CORECAST_PTX_FILE}")
