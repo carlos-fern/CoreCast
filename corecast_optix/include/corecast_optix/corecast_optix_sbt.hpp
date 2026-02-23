@@ -24,6 +24,12 @@ class CoreCastOptixSBT
 {
 
     public:
+    /**
+    * @brief Constructor for the CoreCastOptixSBT class.
+    * @param program_name The name of the program to create the SBT for.
+    * @param program_registry The program registry to use to get the program group.
+    * @param data The data to store in the SBT.
+    */
     CoreCastOptixSBT(std::string program_name, CoreCastOptixProgramRegistry& program_registry, DataType data): sbt_({}){
 
         host_record_ptr_ = std::make_unique<RecordType>();
@@ -43,6 +49,9 @@ class CoreCastOptixSBT
         sbt_.hitgroupRecordCount = 1;
     }
 
+    /**
+    * @brief Destructor for the CoreCastOptixSBT class.
+    */
     ~CoreCastOptixSBT()
     {
         if (device_ptr_ != 0) {
@@ -50,6 +59,10 @@ class CoreCastOptixSBT
         }
     }
 
+    /**
+    * @brief Get the SBT.
+    * @return The SBT.
+    */
     const OptixShaderBindingTable& get_sbt() const { return sbt_; }
 
     private:
