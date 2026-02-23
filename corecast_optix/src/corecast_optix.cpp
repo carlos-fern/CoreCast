@@ -10,8 +10,8 @@ CoreCastOptix::CoreCastOptix(CUcontext context_id, OptixDeviceContextOptions& op
 }
 
 
-void CoreCastOptix::create_module(std::string &module_name, OptixPipelineCompileOptions& pipeline_compile_options, OptixModuleCompileOptions& module_compile_options){
-    modules_[module_name] = std::make_shared<CoreCastOptixModule>(context_, pipeline_compile_options, module_compile_options);
+void CoreCastOptix::create_module(std::string &module_name, OptixPipelineCompileOptions& pipeline_compile_options, OptixModuleCompileOptions& module_compile_options, std::string& ptx_path){
+    modules_[module_name] = std::make_shared<CoreCastOptixModule>(context_, pipeline_compile_options, module_compile_options, ptx_path);
 }
 
 void CoreCastOptix::add_program_to_module(std::string &module_name, CoreCastProgram& program){

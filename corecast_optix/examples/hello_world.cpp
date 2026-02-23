@@ -73,7 +73,8 @@ int main()
     std::vector<std::string> program_names = {raygen_program.name};
 
     std::cout << "Creating module" << std::endl;
-    optix.create_module(module_name, pipeline_compile_options, module_compile_options);
+    std::string ptx_path = CORECAST_PTX_PATH;
+    optix.create_module(module_name, pipeline_compile_options, module_compile_options, ptx_path);
     
     std::cout << "Adding program to module" << std::endl;
     optix.add_program_to_module(module_name, raygen_program);

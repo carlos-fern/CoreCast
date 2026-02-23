@@ -38,8 +38,9 @@ class CoreCastOptix
     * @param module_name The name of the module to create.
     * @param pipeline_compile_options The options for the pipeline compile.
     * @param module_compile_options The options for the module compile.
+    * @param ptx_path The path to the PTX file to use for the module.
     */
-    void create_module(std::string &module_name, OptixPipelineCompileOptions& pipeline_compile_options, OptixModuleCompileOptions& module_compile_options);
+    void create_module(std::string &module_name, OptixPipelineCompileOptions& pipeline_compile_options, OptixModuleCompileOptions& module_compile_options, std::string& ptx_path);
     
     /**
     * @brief Add a program to a module.

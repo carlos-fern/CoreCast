@@ -22,7 +22,7 @@ public:
   * @param pipeline_compile_options The options for the pipeline compile.
   * @param module_compile_options The options for the module compile.
   */
-  CoreCastOptixModule(std::shared_ptr<CoreCastOptixContext> context, OptixPipelineCompileOptions& pipeline_compile_options, OptixModuleCompileOptions& module_compile_options);
+  CoreCastOptixModule(std::shared_ptr<CoreCastOptixContext> context, OptixPipelineCompileOptions& pipeline_compile_options, OptixModuleCompileOptions& module_compile_options, std::string& ptx_path);
 
   /**
   * @brief Destructor for the CoreCastOptixModule class.
