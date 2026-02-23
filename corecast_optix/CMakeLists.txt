@@ -72,7 +72,6 @@ add_library(corecast_optix
   src/corecast_optix_utils.cpp
   src/corecast_optix_pipeline.cpp
   src/corecast_optix.cpp
-  src/corecast_optix_launch.cpp
 )
 add_dependencies(corecast_optix corecast_optix_ptx)
 target_compile_definitions(corecast_optix PUBLIC CORECAST_PTX_PATH="${CORECAST_PTX_FILE}")
