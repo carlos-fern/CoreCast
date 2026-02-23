@@ -2,6 +2,7 @@
 
 #include <cuda_runtime.h>
 #include <cuda/std/variant>
+#include <cstdint>
 
 namespace corecast_optix
 {
@@ -34,14 +35,16 @@ struct __attribute__((packed)) PointXYZI {
 
 struct PointCloudParams
 {
-    std::vector<PointXYZI>* data; 
-    unsigned int num_points;
+    PointXYZI* data;
+    uint32_t   num_points;
+    OptixTraversableHandle traversable;
 };
 
 // Global raygen data (The map)
 struct PointCloudRayGenData
 {
-    std::vector<PointXYZI>* data;
+    PointXYZI* data;
+    unsigned int num_points;
 };
 
 struct PointCloudHitData{
@@ -55,12 +58,7 @@ struct PointCloudMissData{
 };
 
 struct PointCloudRayPayload{
-    float x;
-    float y;
-    float z;
-    float intensity;
-    uint16_t ring;
-    double timestampOffset;
+    PointXYZI point;
 };
 
 

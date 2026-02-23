@@ -38,7 +38,7 @@ public:
                               /*depth=*/1));
     } else if constexpr (std::is_same_v<ParamsType, PointCloudParams>) {
       OPTIX_CHECK(optixLaunch(pipeline, stream_, d_param_, launch_param_size,
-                              &sbt, params_.num_points, /*depth=*/1));
+                              &sbt, params_.num_points, 1,/*depth=*/1));
     }
 
     CUDA_CHECK(cudaStreamSynchronize(stream_));
