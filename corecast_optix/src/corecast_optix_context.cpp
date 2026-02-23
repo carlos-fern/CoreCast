@@ -1,36 +1,10 @@
 #include "corecast_optix/corecast_optix_context.hpp"
+#include "corecast_optix/corecast_optix_utils.hpp"
 #include <optix_function_table_definition.h>
 #include <optix_stubs.h>
 
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <stdexcept>
-
 namespace corecast_optix
 {
-
-namespace
-{
-void check_cuda(cudaError_t result, const char* expr)
-{
-  if (result != cudaSuccess) {
-    std::ostringstream oss;
-    oss << "CUDA call failed (" << static_cast<int>(result) << "): " << expr
-        << " - " << cudaGetErrorString(result);
-    throw std::runtime_error(oss.str());
-  }
-}
-
-void check_optix(OptixResult result, const char* expr)
-{
-  if (result != OPTIX_SUCCESS) {
-    std::ostringstream oss;
-    oss << "OptiX call failed (" << static_cast<int>(result) << "): " << expr;
-    throw std::runtime_error(oss.str());
-  }
-}
-}  // namespace
 
 CoreCastOptixContext::CoreCastOptixContext(CUcontext context_id, OptixDeviceContextOptions& options):
   options_(options)
@@ -39,11 +13,18 @@ CoreCastOptixContext::CoreCastOptixContext(CUcontext context_id, OptixDeviceCont
   check_cuda(cudaFree(0), "cudaFree(0)");
   cuCtx_ = context_id;
 
+  std::cout << "Context ID: " << context_id << std::endl;
+  std::cout << "Options: " << options_.logCallbackFunction << std::endl;
+
   if (options_.logCallbackFunction == nullptr){
+    std::cout << "Setting log callback function to default" << std::endl;
     options_.logCallbackFunction = &context_log_cb;
   }
 
+  std::cout << "Initializing OptiX" << std::endl;
   check_optix(optixInit(), "optixInit()");
+  
+  std::cout << "Creating OptiX device context" << std::endl;
   check_optix(optixDeviceContextCreate(cuCtx_, &options_, &this->context_), "optixDeviceContextCreate()");
 }
 
