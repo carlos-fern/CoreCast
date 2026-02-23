@@ -3,7 +3,6 @@
 #include <optix.h>
 
 #include <cuda_runtime.h>
-#include <sutil/Exception.h>
 
 #include "corecast_optix/corecast_optix_context.hpp"
 #include "corecast_optix/corecast_optix_module.hpp"

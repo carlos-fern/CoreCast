@@ -7,8 +7,6 @@
 #include <string>
 #include <vector>
 
-#include <sutil/Exception.h>
-
 #include "corecast_optix/corecast_optix_context.hpp"
 #include "corecast_optix/corecast_optix_module.hpp"
 
