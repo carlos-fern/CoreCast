@@ -45,6 +45,7 @@ message(STATUS "Using cuda/std include root: ${CORECAST_CUDA_STD_INCLUDE_DIR}")
 set(SAMPLES_INPUT_GENERATE_PTX 0)
 
 set(CORECAST_PTX_FILE "${CMAKE_CURRENT_BINARY_DIR}/ptx/draw_solid_color.ptx")
+set(CORECAST_POINTCLOUD_PTX_FILE "${CMAKE_CURRENT_BINARY_DIR}/ptx/extract_2d_plane.ptx")
 
 add_custom_command(
   OUTPUT "${CORECAST_PTX_FILE}"
@@ -57,13 +58,34 @@ add_custom_command(
     -I"${CORECAST_CUDA_STD_INCLUDE_DIR}"
     -I"${CMAKE_CURRENT_SOURCE_DIR}/include"
     -I"${CMAKE_CURRENT_SOURCE_DIR}/cuda_examples"
+    -I"${CMAKE_CURRENT_SOURCE_DIR}/cuda"
     -I"${CMAKE_CURRENT_BINARY_DIR}/generated"
     "${CMAKE_CURRENT_SOURCE_DIR}/cuda_examples/draw_solid_color.cu"
     -o "${CORECAST_PTX_FILE}"
   DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/cuda_examples/draw_solid_color.cu"
   COMMENT "Generating OptiX PTX for draw_solid_color.cu"
 )
-add_custom_target(corecast_optix_ptx DEPENDS "${CORECAST_PTX_FILE}")
+
+add_custom_command(
+  OUTPUT "${CORECAST_POINTCLOUD_PTX_FILE}"
+  COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/ptx"
+  COMMAND ${CUDAToolkit_NVCC_EXECUTABLE}
+    --ptx
+    --std=c++17
+    -I"${OPTIX_SDK_PATH}/include"
+    -I"${OPTIX_SDK_PATH}/SDK"
+    -I"${CORECAST_CUDA_STD_INCLUDE_DIR}"
+    -I"${CMAKE_CURRENT_SOURCE_DIR}/include"
+    -I"${CMAKE_CURRENT_SOURCE_DIR}/cuda_examples"
+    -I"${CMAKE_CURRENT_SOURCE_DIR}/cuda"
+    -I"${CMAKE_CURRENT_BINARY_DIR}/generated"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cuda/pointcloud/extract_2d_plane.cu"
+    -o "${CORECAST_POINTCLOUD_PTX_FILE}"
+  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/cuda/pointcloud/extract_2d_plane.cu"
+  COMMENT "Generating OptiX PTX for extract_2d_plane.cu"
+)
+
+add_custom_target(corecast_optix_ptx DEPENDS "${CORECAST_PTX_FILE}" "${CORECAST_POINTCLOUD_PTX_FILE}")
 
 add_library(corecast_optix
   src/corecast_optix_context.cpp
@@ -75,6 +97,7 @@ add_library(corecast_optix
 )
 add_dependencies(corecast_optix corecast_optix_ptx)
 target_compile_definitions(corecast_optix PUBLIC CORECAST_PTX_PATH="${CORECAST_PTX_FILE}")
+target_compile_definitions(corecast_optix PUBLIC CORECAST_POINTCLOUD_PTX_PATH="${CORECAST_POINTCLOUD_PTX_FILE}")
 
 target_include_directories(corecast_optix
   PUBLIC

@@ -38,6 +38,10 @@ struct PointCloudParams
     PointXYZI* data;
     uint32_t   num_points;
     OptixTraversableHandle traversable;
+
+    uint8_t * inlier_mask; // represents the inlier mask for the plane
+    float plane_z; // represents the z-coordinate of the plane
+    float distance_threshold; // represents the distance thrshold for the plane
 };
 
 // Global raygen data (The map)
