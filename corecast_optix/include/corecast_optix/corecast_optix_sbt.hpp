@@ -24,7 +24,7 @@ class CoreCastOptixSBT
 {
 
     public:
-    CoreCastOptixSBT(std::string program_name, CoreCastOptixProgramRegistry& program_registry, DataType data){
+    CoreCastOptixSBT(std::string program_name, CoreCastOptixProgramRegistry& program_registry, DataType data): sbt_({}){
 
         host_record_ptr_ = std::make_unique<RecordType>();
         host_record_size_ = sizeof(RecordType);
@@ -33,7 +33,7 @@ class CoreCastOptixSBT
         host_record_ptr_->data = data;
         OPTIX_CHECK(optixSbtRecordPackHeader(program_registry.get_program_group(program_name), host_record_ptr_.get()));
         CUDA_CHECK(cudaMemcpy(reinterpret_cast<void*>(device_ptr_), host_record_ptr_.get(), host_record_size_, cudaMemcpyHostToDevice));
-        sbt_ = {};
+        
         sbt_.raygenRecord = device_ptr_;
         sbt_.missRecordBase = device_ptr_;
         sbt_.missRecordStrideInBytes = static_cast<unsigned int>(host_record_size_);

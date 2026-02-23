@@ -35,4 +35,15 @@ void CoreCastOptix::launch_pipeline(std::string &pipeline_name, Params& params, 
     launchers_[pipeline_name] = std::make_shared<CoreCastOptixLaunch>(context_, params, pipeline_it->second->get_pipeline(), sbt_it->second);    
 }
 
+void CoreCastOptix::get_result(corecast_optix::Params& params, std::vector<uchar4>& host_pixels){
+
+    CUDA_CHECK(cudaMemcpy(
+        host_pixels.data(),
+        params.image,
+        host_pixels.size() * sizeof(uchar4),
+        cudaMemcpyDeviceToHost
+    ));
+
+    CUDA_CHECK(cudaFree(reinterpret_cast<void*>(params.image)));
+}
 }  // namespace corecast_optix

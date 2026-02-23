@@ -28,7 +28,9 @@ class CoreCastOptix
     void add_program_to_module(std::string &module_name, CoreCastProgram& program);
     void build_pipeline(std::string &pipeline_name, std::vector<std::string> program_names, OptixPipelineLinkOptions& link_options);
     void launch_pipeline(std::string &pipeline_name, Params& params, std::string &sbt_name);
-    
+    void get_result(corecast_optix::Params& params, std::vector<uchar4>& host_pixels);
+
+
     template <typename RecordType, typename DataType>
     void create_sbt(std::string &sbt_name, std::string &program_name, DataType& data){
 
@@ -36,6 +38,7 @@ class CoreCastOptix
         sbt_tables_[sbt_name] = sbt->get_sbt();
         sbts_[sbt_name] = sbt;
     }
+
 
     private:
     std::shared_ptr<CoreCastOptixContext> context_;
