@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cuda_runtime.h>
+#include <cuda/std/variant>
 
 namespace corecast_optix
 {
@@ -11,6 +12,8 @@ struct Params
     unsigned int image_width;
     unsigned int image_height;
 };
+
+using ParamsVariant = cuda::std::variant<Params>;
 
 struct RayGenData
 {
