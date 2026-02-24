@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <type_traits>
 #include <unordered_map>
 #include <vector>
 
@@ -37,8 +38,9 @@ class CoreCastOptix
     * @param module_name The name of the module to create.
     * @param pipeline_compile_options The options for the pipeline compile.
     * @param module_compile_options The options for the module compile.
+    * @param ptx_path The path to the PTX file to use for the module.
     */
-    void create_module(std::string &module_name, OptixPipelineCompileOptions& pipeline_compile_options, OptixModuleCompileOptions& module_compile_options);
+    void create_module(std::string &module_name, OptixPipelineCompileOptions& pipeline_compile_options, OptixModuleCompileOptions& module_compile_options, std::string& ptx_path);
     
     /**
     * @brief Add a program to a module.
@@ -61,7 +63,18 @@ class CoreCastOptix
     * @param params The parameters for the pipeline.
     * @param sbt_name The name of the SBT to use for the pipeline.
     */
-    void launch_pipeline(std::string &pipeline_name, Params& params, std::string &sbt_name);
+    template <typename ParamsType>
+    void launch_pipeline(std::string &pipeline_name, const ParamsType& params, std::string &sbt_name){
+            auto pipeline_it = pipelines_.find(pipeline_name);
+            if (pipeline_it == pipelines_.end()) {
+                throw std::runtime_error("Pipeline not found: " + pipeline_name);
+            }
+            auto sbt_it = sbt_tables_.find(sbt_name);
+            if (sbt_it == sbt_tables_.end()) {
+                throw std::runtime_error("SBT not found: " + sbt_name);
+            }
+            launchers_[pipeline_name] = std::make_shared<CoreCastOptixLaunch<ParamsType>>(context_, params, pipeline_it->second->get_pipeline(), sbt_it->second);    
+    }
     
     /**
     * @brief Get the result from a pipeline.
@@ -69,7 +82,25 @@ class CoreCastOptix
     * @param params The parameters for the pipeline.
     * @param host_pixels The host pixels to store the result in.
     */
-    void get_result(std::string &pipeline_name, corecast_optix::Params& params, std::vector<uchar4>& host_pixels);
+
+    template <typename ParamsType, typename ResultType>
+    void get_result(std::string &pipeline_name, ParamsType& params, ResultType& host_data){
+        using HostValueType = typename std::remove_reference_t<ResultType>::value_type;
+
+        auto& launcher = launchers_[pipeline_name];
+
+        CUDA_CHECK(cudaMemcpyAsync(
+            host_data.data(),
+            params.data,
+            host_data.size() * sizeof(HostValueType),
+            cudaMemcpyDeviceToHost,
+            launcher->get_stream()
+        ));
+    
+        launcher->wait_for_completion();
+    
+        CUDA_CHECK(cudaFree(reinterpret_cast<void*>(params.data)));
+    }
 
     /**
     * @brief Create a SBT.
@@ -90,9 +121,10 @@ class CoreCastOptix
     std::unordered_map<std::string, std::shared_ptr<CoreCastOptixModule>> modules_;
     std::shared_ptr<CoreCastOptixProgramRegistry> program_registry_;
     std::unordered_map<std::string, std::shared_ptr<CoreCastOptixPipeline>> pipelines_;
-    std::unordered_map<std::string, std::shared_ptr<CoreCastOptixLaunch>> launchers_;
-    std::unordered_map<std::string, std::shared_ptr<void>> sbts_;
+    std::unordered_map<std::string, std::shared_ptr<ICoreCastOptixLaunch>> launchers_;
     std::unordered_map<std::string, OptixShaderBindingTable> sbt_tables_;
+    std::unordered_map<std::string, std::shared_ptr<void>> sbts_;
+
 };    
 
 }  // namespace corecast_optix

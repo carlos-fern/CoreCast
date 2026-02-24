@@ -1,13 +1,16 @@
 #pragma once
 
 #include <cuda_runtime.h>
+#include <cuda/std/variant>
+#include <cstdint>
 
 namespace corecast_optix
 {
 
+// Helloworld image types TODO: Remove this in favor of pointcloud types
 struct Params
 {
-    uchar4* image;
+    uchar4* data;
     unsigned int image_width;
     unsigned int image_height;
 };
@@ -19,5 +22,54 @@ struct RayGenData
     float circle_center_y;
     float circle_radius;
 };
+
+// Core pointcloud type
+struct __attribute__((packed)) PointXYZI {
+    float x;         
+    float y;         
+    float z;         
+    float intensity; 
+    uint16_t ring;  
+    double timestampOffset;
+};
+
+struct PointCloudParams
+{
+    PointXYZI* data;
+    uint32_t   num_points;
+    OptixTraversableHandle traversable;
+
+    uint8_t * inlier_mask; // represents the inlier mask for the plane
+    float plane_z; // represents the z-coordinate of the plane
+    float distance_threshold; // represents the distance thrshold for the plane
+};
+
+// Global raygen data (The map)
+struct PointCloudRayGenData
+{
+    PointXYZI* data;
+    unsigned int num_points;
+};
+
+struct PointCloudHitData{
+    float intensity;
+    uint16_t ring;
+    double timestampOffset;
+};
+
+struct PointCloudMissData{
+    float empty_color;
+};
+
+struct PointCloudRayPayload{
+    PointXYZI point;
+};
+
+
+
+
+
+
+
 
 }  // namespace corecast_optix

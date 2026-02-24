@@ -3,24 +3,23 @@
 
 #include <optix_stubs.h>
 
-namespace corecast_optix
-{
+namespace corecast_optix {
 
-CoreCastOptixModule::CoreCastOptixModule(std::shared_ptr<CoreCastOptixContext> context, OptixPipelineCompileOptions& pipeline_compile_options, OptixModuleCompileOptions& module_compile_options) : context_(context), pipeline_compile_options_(pipeline_compile_options), module_compile_options_(module_compile_options)
-{
-    std::vector<char> ptx = read_file_bytes(CORECAST_PTX_PATH);
+CoreCastOptixModule::CoreCastOptixModule(
+    std::shared_ptr<CoreCastOptixContext> context,
+    OptixPipelineCompileOptions &pipeline_compile_options,
+    OptixModuleCompileOptions &module_compile_options,
+    std::string& ptx_path)
+    : context_(context), pipeline_compile_options_(pipeline_compile_options),
+      module_compile_options_(module_compile_options) {
+  std::vector<char> ptx = read_file_bytes(ptx_path);
 
-    OPTIX_CHECK_LOG( optixModuleCreate(
-                context_->get_context(),
-                &module_compile_options_,
-                &pipeline_compile_options_,
-                ptx.data(),
-                ptx.size(),
-                LOG, &LOG_SIZE,
-                &module_
-                ) );
+  OPTIX_CHECK_LOG(optixModuleCreate(context_->get_context(),
+                                    &module_compile_options_,
+                                    &pipeline_compile_options_, ptx.data(),
+                                    ptx.size(), LOG, &LOG_SIZE, &module_));
 }
 
 CoreCastOptixModule::~CoreCastOptixModule() = default;
 
-}  // namespace corecast_optix
+} // namespace corecast_optix

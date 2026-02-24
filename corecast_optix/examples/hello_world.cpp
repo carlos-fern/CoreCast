@@ -51,7 +51,7 @@ int main()
     corecast_optix::Params params = {};
     params.image_width = 1024;
     params.image_height = 1024;
-    CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&params.image), params.image_width * params.image_height * sizeof(uchar4)));
+    CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&params.data), params.image_width * params.image_height * sizeof(uchar4)));
 
     corecast_optix::CoreCastProgram raygen_program = {};
     raygen_program.name = "raygen";
@@ -73,7 +73,8 @@ int main()
     std::vector<std::string> program_names = {raygen_program.name};
 
     std::cout << "Creating module" << std::endl;
-    optix.create_module(module_name, pipeline_compile_options, module_compile_options);
+    std::string ptx_path = CORECAST_PTX_PATH;
+    optix.create_module(module_name, pipeline_compile_options, module_compile_options, ptx_path);
     
     std::cout << "Adding program to module" << std::endl;
     optix.add_program_to_module(module_name, raygen_program);
@@ -85,11 +86,12 @@ int main()
     optix.create_sbt<corecast_optix::SbtRecord<corecast_optix::RayGenData>, corecast_optix::RayGenData>(sbt_name, raygen_program.name, data);
     
     std::cout << "Launching pipeline" << std::endl;
-    optix.launch_pipeline(pipeline_name, params, sbt_name);
+    corecast_optix::Params launch_params = params;
+    optix.launch_pipeline(pipeline_name, launch_params, sbt_name);
 
     std::vector<uchar4> host_pixels(params.image_width * params.image_height);
     std::cout << "Getting result" << std::endl;
-    optix.get_result(pipeline_name, params, host_pixels);
+    optix.get_result(pipeline_name, launch_params, host_pixels);
 
     write_ppm(params, host_pixels);
 
