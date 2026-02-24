@@ -125,6 +125,15 @@ target_link_libraries(corecast_optix_hello_world
     corecast_optix
 )
 
+add_executable(corecast_optix_pointcloud_hello_world
+  examples/hello_world_point_cloud.cpp
+)
+
+target_link_libraries(corecast_optix_pointcloud_hello_world
+  PRIVATE
+    corecast_optix
+)
+
 install(TARGETS corecast_optix
   DESTINATION lib
 )
