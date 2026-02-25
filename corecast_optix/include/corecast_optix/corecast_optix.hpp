@@ -83,23 +83,15 @@ class CoreCastOptix
     * @param host_pixels The host pixels to store the result in.
     */
 
-    template <typename ParamsType, typename ResultType>
-    void get_result(std::string &pipeline_name, ParamsType& params, ResultType& host_data){
-        using HostValueType = typename std::remove_reference_t<ResultType>::value_type;
-
+    template <ValidCUDAType UnprocessedType, ValidCUDAType ProcessedType>
+    ProcessedType* get_result(std::string &pipeline_name, CUDABuffer<UnprocessedType, ProcessedType>& host_buffer){
         auto& launcher = launchers_[pipeline_name];
-
-        CUDA_CHECK(cudaMemcpyAsync(
-            host_data.data(),
-            params.data,
-            host_data.size() * sizeof(HostValueType),
-            cudaMemcpyDeviceToHost,
-            launcher->get_stream()
-        ));
+        
+        host_buffer.download_from_device_async(launcher->get_stream());
     
         launcher->wait_for_completion();
-    
-        CUDA_CHECK(cudaFree(reinterpret_cast<void*>(params.data)));
+
+        return host_buffer.get_processed_data_ptr();
     }
 
     /**

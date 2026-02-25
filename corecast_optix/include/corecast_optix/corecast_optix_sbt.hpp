@@ -13,13 +13,13 @@
 namespace corecast_optix
 {
 
-template <typename T>
+template <ValidCUDAType T>
 struct SbtRecord {
     __align__(OPTIX_SBT_RECORD_ALIGNMENT) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
     T data;
 };
 
-template <typename RecordType, typename DataType>
+template <ValidCUDAType RecordType, ValidCUDAType DataType>
 class CoreCastOptixSBT
 {
 

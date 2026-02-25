@@ -2,11 +2,13 @@
 #include <fstream>
 #include <vector>
 
-void write_ppm(corecast_optix::Params& params, std::vector<uchar4>& host_pixels){
+void write_ppm(corecast_optix::Params& params, const uchar4* host_pixels){
     const char* output_path = "corecast_output.ppm";
     std::ofstream out(output_path, std::ios::binary);
     out << "P6\n" << params.image_width << " " << params.image_height << "\n255\n";
-    for (const auto& px : host_pixels) {
+    const size_t num_pixels = static_cast<size_t>(params.image_width) * params.image_height;
+    for (size_t i = 0; i < num_pixels; ++i) {
+        const auto& px = host_pixels[i];
         out.write(reinterpret_cast<const char*>(&px.x), 1);
         out.write(reinterpret_cast<const char*>(&px.y), 1);
         out.write(reinterpret_cast<const char*>(&px.z), 1);
@@ -51,7 +53,16 @@ int main()
     corecast_optix::Params params = {};
     params.image_width = 1024;
     params.image_height = 1024;
-    CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&params.data), params.image_width * params.image_height * sizeof(uchar4)));
+
+    std::vector<uchar4> host_pixels(params.image_width * params.image_height);
+    std::vector<uchar4> host_pixels_output(params.image_width * params.image_height);
+
+    corecast_optix::CUDABuffer<uchar4, uchar4> host_pixels_buffer(
+        host_pixels.data(),
+        static_cast<int>(params.image_width * params.image_height),
+        host_pixels_output.data()
+    );
+    params.data = host_pixels_buffer.get_device_ptr();
 
     corecast_optix::CoreCastProgram raygen_program = {};
     raygen_program.name = "raygen";
@@ -89,11 +100,8 @@ int main()
     corecast_optix::Params launch_params = params;
     optix.launch_pipeline(pipeline_name, launch_params, sbt_name);
 
-    std::vector<uchar4> host_pixels(params.image_width * params.image_height);
     std::cout << "Getting result" << std::endl;
-    optix.get_result(pipeline_name, launch_params, host_pixels);
-
-    write_ppm(params, host_pixels);
+    write_ppm(params, optix.get_result<uchar4, uchar4>(pipeline_name, host_pixels_buffer));
 
     return 0;
 }

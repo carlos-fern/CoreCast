@@ -87,17 +87,20 @@ int main()
 
     // Allocate device buffers
     corecast_optix::PointXYZI* d_points = nullptr;
-    uint8_t* d_inlier_mask = nullptr;
-    CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&d_points), num_points * sizeof(corecast_optix::PointXYZI)));
-    CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&d_inlier_mask), num_points * sizeof(uint8_t)));
-    CUDA_CHECK(cudaMemcpy(d_points, host_points.data(), num_points * sizeof(corecast_optix::PointXYZI), cudaMemcpyHostToDevice));
+    std::vector<uint8_t> host_inlier_mask(num_points);
+
+    corecast_optix::CUDABuffer<corecast_optix::PointXYZI, corecast_optix::PointXYZI> d_points_buffer(host_points.data(), num_points, d_points);
+    corecast_optix::CUDABuffer<uint8_t, uint8_t> d_inlier_mask_buffer(host_inlier_mask.data(), num_points, host_inlier_mask.data());
+
+    d_points_buffer.upload_to_device_sync();
+    d_inlier_mask_buffer.upload_to_device_sync();
 
     // Plane at z=0, threshold 0.1
     corecast_optix::PointCloudParams params = {};
-    params.data = d_points;
-    params.num_points = num_points;
+    params.data = d_points_buffer.get_device_ptr();
+    params.num_points = d_points_buffer.get_num_elements();
     params.traversable = 0;
-    params.inlier_mask = d_inlier_mask;
+    params.inlier_mask = d_inlier_mask_buffer.get_device_ptr();
     params.plane_z = 0.0f;
     params.distance_threshold = 0.1f;
 
@@ -111,7 +114,7 @@ int main()
     std::string pipeline_name = "pointcloud_pipeline";
     std::string module_name = raygen_program.name;
     std::string sbt_name = "pointcloud_sbt";
-    corecast_optix::PointCloudRayGenData rg_data = { d_points, num_points };
+    corecast_optix::PointCloudRayGenData rg_data = { d_points_buffer.get_device_ptr(), d_points_buffer.get_num_elements() };
     std::vector<std::string> program_names = { raygen_program.name };
 
     std::cout << "Creating module from extract_2d_plane.ptx" << std::endl;
@@ -132,8 +135,7 @@ int main()
     optix.launch_pipeline(pipeline_name, params, sbt_name);
 
     // Copy inlier mask back and count
-    std::vector<uint8_t> host_inlier_mask(num_points);
-    CUDA_CHECK(cudaMemcpy(host_inlier_mask.data(), params.inlier_mask, num_points * sizeof(uint8_t), cudaMemcpyDeviceToHost));
+    d_inlier_mask_buffer.download_from_device_sync();
 
     size_t inlier_count = 0;
     for (uint8_t m : host_inlier_mask)
@@ -141,10 +143,6 @@ int main()
 
     std::cout << "Inlier count: " << inlier_count << " / " << num_points
               << " (expected ~" << num_inliers << ")" << std::endl;
-
-    // Cleanup
-    CUDA_CHECK(cudaFree(reinterpret_cast<void*>(params.data)));
-    CUDA_CHECK(cudaFree(reinterpret_cast<void*>(params.inlier_mask)));
 
     return 0;
 }
