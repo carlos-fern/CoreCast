@@ -2,7 +2,7 @@
 
 ![CoreCast Logo](logo.png)
 
-CoreCast is a project I am using to expand my personal knowledge around ray tracing, CUDA development, and point cloud processing. This project aims to provide a wrapper around the NVIDIA OptiX framework to process point clouds in robotic applications leveraging NVIDIA RT Cores. The goal is both a standalone library and a ROS 2 node.
+CoreCast aims to be a high-performance library and ROS 2 framework designed to bridge the gap between NVIDIA's OptiX ray-tracing engine and robotic point cloud processing. By leveraging hardware-accelerated NVIDIA RT Cores, CoreCast enables real-time geometric queries on massive point sets that are traditionally computationally expensive for CPUs.
 
 ## Build
 
