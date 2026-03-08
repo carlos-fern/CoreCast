@@ -45,18 +45,19 @@ message(STATUS "Using cuda/std include root: ${CORECAST_CUDA_STD_INCLUDE_DIR}")
 set(SAMPLES_INPUT_GENERATE_PTX 0)
 
 set(CORECAST_PTX_FILE "${CMAKE_CURRENT_BINARY_DIR}/ptx/draw_solid_color.ptx")
-set(CORECAST_POINTCLOUD_PTX_FILE "${CMAKE_CURRENT_BINARY_DIR}/ptx/extract_2d_plane.ptx")
+set(CORECAST_POINTCLOUD_PTX_FILE "${CMAKE_CURRENT_BINARY_DIR}/ptx/pointcloud_to_depth_map.ptx")
 
 add_custom_command(
   OUTPUT "${CORECAST_PTX_FILE}"
   COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/ptx"
   COMMAND ${CUDAToolkit_NVCC_EXECUTABLE}
     --ptx
-    --std=c++17
+    --std=c++20
     -I"${OPTIX_SDK_PATH}/include"
     -I"${OPTIX_SDK_PATH}/SDK"
     -I"${CORECAST_CUDA_STD_INCLUDE_DIR}"
     -I"${CMAKE_CURRENT_SOURCE_DIR}/include"
+    -I"${CMAKE_CURRENT_SOURCE_DIR}/include/corecast_optix"
     -I"${CMAKE_CURRENT_SOURCE_DIR}/cuda_examples"
     -I"${CMAKE_CURRENT_SOURCE_DIR}/cuda"
     -I"${CMAKE_CURRENT_BINARY_DIR}/generated"
@@ -71,18 +72,19 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/ptx"
   COMMAND ${CUDAToolkit_NVCC_EXECUTABLE}
     --ptx
-    --std=c++17
+    --std=c++20
     -I"${OPTIX_SDK_PATH}/include"
     -I"${OPTIX_SDK_PATH}/SDK"
     -I"${CORECAST_CUDA_STD_INCLUDE_DIR}"
     -I"${CMAKE_CURRENT_SOURCE_DIR}/include"
+    -I"${CMAKE_CURRENT_SOURCE_DIR}/include/corecast_optix"
     -I"${CMAKE_CURRENT_SOURCE_DIR}/cuda_examples"
     -I"${CMAKE_CURRENT_SOURCE_DIR}/cuda"
     -I"${CMAKE_CURRENT_BINARY_DIR}/generated"
-    "${CMAKE_CURRENT_SOURCE_DIR}/cuda/pointcloud/extract_2d_plane.cu"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cuda/pointcloud/pointcloud_to_depth_map.cu"
     -o "${CORECAST_POINTCLOUD_PTX_FILE}"
-  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/cuda/pointcloud/extract_2d_plane.cu"
-  COMMENT "Generating OptiX PTX for extract_2d_plane.cu"
+  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/cuda/pointcloud/pointcloud_to_depth_map.cu"
+  COMMENT "Generating OptiX PTX for pointcloud_to_depth_map.cu"
 )
 
 add_custom_target(corecast_optix_ptx DEPENDS "${CORECAST_PTX_FILE}" "${CORECAST_POINTCLOUD_PTX_FILE}")
@@ -94,6 +96,7 @@ add_library(corecast_optix
   src/corecast_optix_utils.cpp
   src/corecast_optix_pipeline.cpp
   src/corecast_optix.cpp
+  src/corecast_depth_map.cpp
 )
 add_dependencies(corecast_optix corecast_optix_ptx)
 target_compile_definitions(corecast_optix PUBLIC CORECAST_PTX_PATH="${CORECAST_PTX_FILE}")
@@ -116,17 +119,18 @@ target_link_libraries(corecast_optix
     CUDA::cudart
 )
 
-add_executable(corecast_optix_hello_world
-  examples/hello_world.cpp
-)
+#add_executable(corecast_optix_hello_world
+#  examples/hello_world.cpp
+#)
 
-target_link_libraries(corecast_optix_hello_world
-  PRIVATE
-    corecast_optix
-)
+#target_link_libraries(corecast_optix_hello_world
+#  PRIVATE
+#    corecast_optix
+#)
 
 add_executable(corecast_optix_pointcloud_hello_world
   examples/hello_world_point_cloud.cpp
+  examples/hello_world_point_cloud_helpers.cpp
 )
 
 target_link_libraries(corecast_optix_pointcloud_hello_world
