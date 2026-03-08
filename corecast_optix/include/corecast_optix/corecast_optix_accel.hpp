@@ -75,6 +75,8 @@ public:
     return output_handle_;
   }
 
+  OptixTraversableHandle get_output_handle() const { return output_handle_; }
+
 
 private:
   OptixDeviceContext optixContext_;
