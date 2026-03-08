@@ -10,7 +10,7 @@
 #include "corecast_optix/corecast_optix_context.hpp"
 #include "corecast_optix/corecast_optix_cuda_types.hpp"
 
-namespace corecast_optix
+namespace corecast::optix
 {
 
 class CoreCastOptixModule
@@ -51,4 +51,4 @@ public:
   OptixModuleCompileOptions module_compile_options_;
 };
 
-}  // namespace corecast_optix
+}  // namespace corecast::optix

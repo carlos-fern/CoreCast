@@ -18,9 +18,9 @@ inline float dot3(const float3& a, const float3& b) {
 
 }  // namespace
 
-void render_depth_map_cpu(const std::vector<corecast_optix::PointXYZI>& points,
+void render_depth_map_cpu(const std::vector<corecast::optix::PointXYZI>& points,
                           float point_radius,
-                          const corecast_optix::PointCloudLaunchParams& params,
+                          const corecast::optix::PointCloudLaunchParams& params,
                           std::vector<float>* out_depth) {
   const unsigned int width = params.image_width;
   const unsigned int height = params.image_height;

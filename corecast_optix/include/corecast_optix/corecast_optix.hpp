@@ -15,7 +15,7 @@
 #include "corecast_optix/corecast_optix_accel.hpp"
 
 
-namespace corecast_optix
+namespace corecast::optix
 {
 
     
@@ -158,4 +158,4 @@ class CoreCastOptix
 
 };    
 
-}  // namespace corecast_optix
+}  // namespace corecast::optix

@@ -16,16 +16,16 @@ int main()
     options.logCallbackLevel = 4;
     CUcontext cuCtx = 0;
 
-    corecast_optix::CoreCastOptix optix(cuCtx, options);
+    corecast::optix::CoreCastOptix optix(cuCtx, options);
     std::cout << "CoreCastOptix created" << std::endl;
 
     // Build an enormous front-facing cloud (both spatially and in point count).
-    std::vector<corecast_optix::PointXYZI> incoming_pointcloud_points;
+    std::vector<corecast::optix::PointXYZI> incoming_pointcloud_points;
     incoming_pointcloud_points.reserve(1001 * 1001);
     constexpr float point_spacing = 0.05f;
     for (int yi = -500; yi <= 500; ++yi) {
         for (int xi = -500; xi <= 500; ++xi) {
-            corecast_optix::PointXYZI p{};
+            corecast::optix::PointXYZI p{};
             p.x = static_cast<float>(xi) * point_spacing;
             p.y = static_cast<float>(yi) * point_spacing;
             // Slight depth staggering improves contrast in the depth image.
@@ -40,7 +40,7 @@ int main()
 
     constexpr float point_radius = 0.01f;
 
-    corecast::processing::CoreCastDepthMap<corecast_optix::PointXYZI> depth_map_processor(optix);
+    corecast::processing::CoreCastDepthMap<corecast::optix::PointXYZI> depth_map_processor(optix);
     depth_map_processor.setup_depth_map_processing(
         incoming_pointcloud_points,
         /*image_width=*/1920,

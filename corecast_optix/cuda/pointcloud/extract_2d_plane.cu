@@ -5,11 +5,11 @@
 #include <cuda/helpers.h>
 #include <cmath>
 
-using corecast_optix::PointCloudParams;
-using corecast_optix::PointCloudRayGenData;
-using corecast_optix::PointCloudHitData;
-using corecast_optix::PointCloudMissData;
-using corecast_optix::PointCloudRayPayload;
+using corecast::optix::PointCloudParams;
+using corecast::optix::PointCloudRayGenData;
+using corecast::optix::PointCloudHitData;
+using corecast::optix::PointCloudMissData;
+using corecast::optix::PointCloudRayPayload;
 
 extern "C" {
 __constant__ PointCloudParams params;
@@ -24,7 +24,7 @@ __global__ void __raygen__extract_2d_plane()
         return;
     }
 
-    const corecast_optix::PointXYZI point = params.data[launch_index.x];
+    const corecast::optix::PointXYZI point = params.data[launch_index.x];
     const bool inlier = fabsf(point.z - params.plane_z) < params.distance_threshold;
     params.inlier_mask[launch_index.x] = inlier ? 1 : 0;
 }

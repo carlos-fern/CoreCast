@@ -4,7 +4,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace corecast_optix
+namespace corecast::optix
 {
 
 CoreCastOptixPipeline::CoreCastOptixPipeline(std::shared_ptr<CoreCastOptixContext> context, 
@@ -36,4 +36,4 @@ CoreCastOptixPipeline::~CoreCastOptixPipeline() = default;
 
 
 
-}  // namespace corecast_optix
+}  // namespace corecast::optix

@@ -4,7 +4,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace corecast_optix
+namespace corecast::optix
 {
 
 CoreCastOptixProgramRegistry::CoreCastOptixProgramRegistry(std::shared_ptr<CoreCastOptixContext> context) : context_(context) {}
@@ -53,4 +53,4 @@ std::vector<OptixProgramGroup> CoreCastOptixProgramRegistry::get_program_groups(
     }
     return groups;
 }
-}  // namespace corecast_optix
+}  // namespace corecast::optix

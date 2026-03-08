@@ -7,8 +7,8 @@
 #include "corecast_optix/corecast_optix_cuda_types.hpp"
 #include <cuda/helpers.h>
 
-using corecast_optix::Params;
-using corecast_optix::RayGenData;
+using corecast::optix::Params;
+using corecast::optix::RayGenData;
 
 extern "C" {
 __constant__ Params params;

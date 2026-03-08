@@ -4,7 +4,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace corecast_optix
+namespace corecast::optix
 {
 
 void check_cuda(cudaError_t result, const char* expr)
@@ -35,4 +35,4 @@ std::vector<char> read_file_bytes(const std::string& path)
     return std::vector<char>(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
 }
 
-}  // namespace corecast_optix
+}  // namespace corecast::optix

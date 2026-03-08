@@ -10,7 +10,7 @@
 #include "corecast_optix/corecast_optix_module.hpp"
 #include "corecast_optix/corecast_optix_program_registry.hpp"
 
-namespace corecast_optix
+namespace corecast::optix
 {
 
 class CoreCastOptixPipeline
@@ -49,4 +49,4 @@ private:
   OptixPipeline pipeline_;
 };
 
-}  // namespace corecast_optix
+}  // namespace corecast::optix

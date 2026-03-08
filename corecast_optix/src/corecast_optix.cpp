@@ -1,6 +1,6 @@
 #include "corecast_optix/corecast_optix.hpp"
 
-namespace corecast_optix
+namespace corecast::optix
 {
 
 CoreCastOptix::CoreCastOptix(CUcontext context_id, OptixDeviceContextOptions& options)
@@ -25,4 +25,4 @@ void CoreCastOptix::build_pipeline(std::string &pipeline_name, std::vector<std::
 
 
 
-}  // namespace corecast_optix
+}  // namespace corecast::optix

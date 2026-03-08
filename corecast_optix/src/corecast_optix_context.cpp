@@ -5,7 +5,7 @@
 #include <iomanip>
 #include <iostream>
 
-namespace corecast_optix
+namespace corecast::optix
 {
 
 CoreCastOptixContext::CoreCastOptixContext(CUcontext context_id, OptixDeviceContextOptions& options):
@@ -42,4 +42,4 @@ void CoreCastOptixContext::context_log_cb(unsigned int level, const char* tag, c
   std::cerr << "[" << std::setw(2) << level << "][" << std::setw(12) << tag << "]: " << message << "\n";
 }
 
-}  // namespace corecast_optix
+}  // namespace corecast::optix

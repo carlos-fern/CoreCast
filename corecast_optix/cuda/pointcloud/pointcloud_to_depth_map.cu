@@ -2,10 +2,8 @@
 
 #include "corecast_optix/corecast_optix_cuda_types.hpp"
 
-using corecast_optix::PointCloudLaunchParams;
-
 extern "C" {
-__constant__ PointCloudLaunchParams params;
+__constant__ corecast::optix::PointCloudLaunchParams params;
 }
 
 extern "C" __global__ void __raygen__pointcloud_to_depth_map() {

@@ -6,9 +6,9 @@
 namespace corecast::processing {
 
 template <typename PointCloudType>
-CoreCastDepthMap<PointCloudType>::CoreCastDepthMap(corecast_optix::CoreCastOptix& optix) : optix_(optix) {
-  static_assert(std::is_same_v<PointCloudType, corecast_optix::PointXYZI>,
-                "CoreCastDepthMap currently expects PointCloudType == corecast_optix::PointXYZI");
+CoreCastDepthMap<PointCloudType>::CoreCastDepthMap(corecast::optix::CoreCastOptix& optix) : optix_(optix) {
+  static_assert(std::is_same_v<PointCloudType, corecast::optix::PointXYZI>,
+                "CoreCastDepthMap currently expects PointCloudType == corecast::optix::PointXYZI");
 }
 
 template <typename PointCloudType>
@@ -27,7 +27,7 @@ void CoreCastDepthMap<PointCloudType>::setup_depth_map_processing(std::vector<Po
     throw std::runtime_error("Point cloud cannot be empty");
   }
 
-  point_cloud_buffer_ = std::make_unique<corecast_optix::CUDABuffer<PointCloudType, PointCloudType>>(
+  point_cloud_buffer_ = std::make_unique<corecast::optix::CUDABuffer<PointCloudType, PointCloudType>>(
       point_cloud.data(), static_cast<int>(point_cloud.size()), true);
 
   point_centers_host_.clear();
@@ -36,16 +36,16 @@ void CoreCastDepthMap<PointCloudType>::setup_depth_map_processing(std::vector<Po
     point_centers_host_.push_back(make_float3(p.x, p.y, p.z));
   }
 
-  point_centers_buffer_ = std::make_unique<corecast_optix::CUDABuffer<float3, float3>>(
+  point_centers_buffer_ = std::make_unique<corecast::optix::CUDABuffer<float3, float3>>(
       point_centers_host_.data(), static_cast<int>(point_centers_host_.size()), true);
 
-  point_radius_buffer_ = std::make_unique<corecast_optix::CUDABuffer<float, float>>(
+  point_radius_buffer_ = std::make_unique<corecast::optix::CUDABuffer<float, float>>(
       &point_radius, 1, true);
 
   set_point_cloud_build_input();
   set_point_cloud_accel_build_options();
 
-  point_cloud_accel_ = std::make_unique<corecast_optix::CoreCastOptixAccel>(
+  point_cloud_accel_ = std::make_unique<corecast::optix::CoreCastOptixAccel>(
       optix_.get_device_context(), point_cloud_accel_build_options_,
       std::vector<OptixBuildInput>{point_cloud_build_input_}, /*stream=*/nullptr);
   point_cloud_accel_->build_acceleration_structure();
@@ -68,7 +68,7 @@ float* CoreCastDepthMap<PointCloudType>::launch_depth_map() {
 }
 
 template <typename PointCloudType>
-const corecast_optix::PointCloudLaunchParams& CoreCastDepthMap<PointCloudType>::get_launch_params() const {
+const corecast::optix::PointCloudLaunchParams& CoreCastDepthMap<PointCloudType>::get_launch_params() const {
   return point_cloud_launch_params_;
 }
 
@@ -141,7 +141,7 @@ void CoreCastDepthMap<PointCloudType>::set_launch_params(unsigned int image_widt
   point_cloud_launch_params_.handle = point_cloud_accel_->get_output_handle();
 
   depth_host_buffer_.assign(static_cast<size_t>(image_width) * image_height, 0.0f);
-  depth_buffer_ = std::make_unique<corecast_optix::CUDABuffer<float, float>>(
+  depth_buffer_ = std::make_unique<corecast::optix::CUDABuffer<float, float>>(
       depth_host_buffer_.data(), static_cast<int>(depth_host_buffer_.size()), false);
   point_cloud_launch_params_.depth_buffer = depth_buffer_->get_device_ptr();
 }
@@ -193,13 +193,13 @@ void CoreCastDepthMap<PointCloudType>::create_module_pipeline_and_sbt() {
   hit_data_ = {nullptr, nullptr, 0.0f};
 
   optix_.create_trace_sbt<
-      corecast_optix::SbtRecord<corecast_optix::PointCloudRayGenData>, corecast_optix::PointCloudRayGenData,
-      corecast_optix::SbtRecord<corecast_optix::PointCloudMissData>, corecast_optix::PointCloudMissData,
-      corecast_optix::SbtRecord<corecast_optix::PointCloudHitData>, corecast_optix::PointCloudHitData>(
+      corecast::optix::SbtRecord<corecast::optix::PointCloudRayGenData>, corecast::optix::PointCloudRayGenData,
+      corecast::optix::SbtRecord<corecast::optix::PointCloudMissData>, corecast::optix::PointCloudMissData,
+      corecast::optix::SbtRecord<corecast::optix::PointCloudHitData>, corecast::optix::PointCloudHitData>(
       sbt_name_, raygen_program_.name, miss_program_.name, hitgroup_program_.name, raygen_data_, miss_data_,
       hit_data_);
 }
 
-template class CoreCastDepthMap<corecast_optix::PointXYZI>;
+template class CoreCastDepthMap<corecast::optix::PointXYZI>;
 
 }  // namespace corecast::processing
