@@ -34,6 +34,11 @@ class CoreCastOptix
     ~CoreCastOptix() = default;
 
     /**
+    * @brief Expose underlying OptiX device context for advanced setup (e.g. GAS build).
+    */
+    OptixDeviceContext get_device_context() const { return context_->get_context(); }
+
+    /**
     * @brief Create a module.
     * @param module_name The name of the module to create.
     * @param pipeline_compile_options The options for the pipeline compile.

@@ -107,14 +107,22 @@ struct __attribute__((packed)) PointXYZI {
   double timestampOffset;
 };
 
-struct PointCloudParams {
-  PointXYZI *data;
-  uint32_t num_points;
-  OptixTraversableHandle traversable;
+struct PointCloudLaunchParams {
+  // Sensor position and orientation basis vectors
+  float3 sensor_origin;
+  float3 sensor_x_axis;
+  float3 sensor_y_axis;
+  float3 sensor_z_axis;
 
-  uint8_t *inlier_mask;     // represents the inlier mask for the plane
-  float plane_z;            // represents the z-coordinate of the plane
-  float distance_threshold; // represents the distance thrshold for the plane
+  // Tracing limits
+  float t_min;
+  float t_max;
+
+  // The 3D scene handle
+  OptixTraversableHandle handle;
+
+  // Output buffer to store the depth values (1D array mapped to 2D screen)
+  float* depth_buffer; 
 };
 
 // Global raygen data (The map)
@@ -123,10 +131,11 @@ struct PointCloudRayGenData {
   unsigned int num_points;
 };
 
-struct PointCloudHitData {
-  float intensity;
-  uint16_t ring;
-  double timestampOffset;
+struct PointCloudHitData
+{
+    float3* points; 
+    float3* colors;  
+    float   radius;  
 };
 
 struct PointCloudMissData {
