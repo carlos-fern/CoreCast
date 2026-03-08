@@ -1,10 +1,12 @@
 #pragma once
 
 #include <cstdint>
+#include <cuda.h>
 #include <cuda/std/variant>
 #include <cuda_runtime.h>
-#include <type_traits>
 #include <concepts>
+#include <stdexcept>
+#include <type_traits>
 
 namespace corecast_optix {
 
@@ -108,6 +110,9 @@ struct __attribute__((packed)) PointXYZI {
 };
 
 struct PointCloudLaunchParams {
+  unsigned int image_width;
+  unsigned int image_height;
+
   // Sensor position and orientation basis vectors
   float3 sensor_origin;
   float3 sensor_x_axis;
