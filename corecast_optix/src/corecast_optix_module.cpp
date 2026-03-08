@@ -3,7 +3,7 @@
 
 #include <optix_stubs.h>
 
-namespace corecast_optix {
+namespace corecast::optix {
 
 CoreCastOptixModule::CoreCastOptixModule(
     std::shared_ptr<CoreCastOptixContext> context,
@@ -22,4 +22,4 @@ CoreCastOptixModule::CoreCastOptixModule(
 
 CoreCastOptixModule::~CoreCastOptixModule() = default;
 
-} // namespace corecast_optix
+} // namespace corecast::optix

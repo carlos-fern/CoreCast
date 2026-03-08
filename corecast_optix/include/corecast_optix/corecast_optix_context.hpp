@@ -3,7 +3,7 @@
 #include <optix.h>
 #include <cuda_runtime.h>
 
-namespace corecast_optix
+namespace corecast::optix
 {
 
 class CoreCastOptixContext
@@ -42,4 +42,4 @@ public:
   OptixDeviceContextOptions options_ = {};
 };
 
-}  // namespace corecast_optix
+}  // namespace corecast::optix

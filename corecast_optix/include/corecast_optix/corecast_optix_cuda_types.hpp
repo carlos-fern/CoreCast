@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <type_traits>
 
-namespace corecast_optix {
+namespace corecast::optix {
 
 template <typename T>
 concept ValidCUDAType = std::is_trivially_copyable_v<T> && !std::is_pointer_v<T>;
@@ -157,4 +157,4 @@ struct PointCloudRayPayload {
   PointXYZI point;
 };
 
-} // namespace corecast_optix
+} // namespace corecast::optix

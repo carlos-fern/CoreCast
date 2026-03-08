@@ -7,7 +7,7 @@
 #include "corecast_optix/corecast_optix_context.hpp"
 #include "corecast_optix/corecast_optix_module.hpp"
 
-namespace corecast_optix {
+namespace corecast::optix {
 
 struct ICoreCastOptixLaunch {
   virtual ~ICoreCastOptixLaunch() = default;
@@ -61,4 +61,4 @@ private:
   CUdeviceptr d_param_ = 0;
 };
 
-} // namespace corecast_optix
+} // namespace corecast::optix

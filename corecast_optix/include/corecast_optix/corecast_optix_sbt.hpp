@@ -10,7 +10,7 @@
 #include "corecast_optix/corecast_optix_cuda_types.hpp"
 #include "corecast_optix/corecast_optix_program_registry.hpp"
 
-namespace corecast_optix
+namespace corecast::optix
 {
 
 template <ValidCUDAType T>
@@ -150,4 +150,4 @@ private:
     std::unique_ptr<HitgroupRecordType> hitgroup_host_record_ptr_;
 };
 
-}  // namespace corecast_optix
+}  // namespace corecast::optix

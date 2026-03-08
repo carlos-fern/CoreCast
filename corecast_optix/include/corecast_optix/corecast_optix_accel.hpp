@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace corecast_optix
+namespace corecast::optix
 {
 
 
@@ -92,4 +92,4 @@ private:
 
 
 
-}  // namespace corecast_optix
+}  // namespace corecast::optix

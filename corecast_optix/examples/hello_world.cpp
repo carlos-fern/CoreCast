@@ -2,7 +2,7 @@
 #include <fstream>
 #include <vector>
 
-void write_ppm(corecast_optix::Params& params, const uchar4* host_pixels){
+void write_ppm(corecast::optix::Params& params, const uchar4* host_pixels){
     const char* output_path = "corecast_output.ppm";
     std::ofstream out(output_path, std::ios::binary);
     out << "P6\n" << params.image_width << " " << params.image_height << "\n255\n";
@@ -31,7 +31,7 @@ int main()
     CUcontext cuCtx = 0;
 
     // Create the CoreCastOptix instance
-    corecast_optix::CoreCastOptix optix(cuCtx, options);
+    corecast::optix::CoreCastOptix optix(cuCtx, options);
     std::cout << "CoreCastOptix created" << std::endl;
 
     // Set the pipeline compile options
@@ -50,21 +50,21 @@ int main()
     OptixPipelineLinkOptions link_options = {};
     
     // Set the parameters for the pipeline
-    corecast_optix::Params params = {};
+    corecast::optix::Params params = {};
     params.image_width = 1024;
     params.image_height = 1024;
 
     std::vector<uchar4> host_pixels(params.image_width * params.image_height);
     std::vector<uchar4> host_pixels_output(params.image_width * params.image_height);
 
-    corecast_optix::CUDABuffer<uchar4, uchar4> host_pixels_buffer(
+    corecast::optix::CUDABuffer<uchar4, uchar4> host_pixels_buffer(
         host_pixels.data(),
         static_cast<int>(params.image_width * params.image_height),
         host_pixels_output.data()
     );
     params.data = host_pixels_buffer.get_device_ptr();
 
-    corecast_optix::CoreCastProgram raygen_program = {};
+    corecast::optix::CoreCastProgram raygen_program = {};
     raygen_program.name = "raygen";
     raygen_program.options = {};
     raygen_program.desc = {};
@@ -74,7 +74,7 @@ int main()
     std::string pipeline_name = "raygen_pipeline";
     std::string module_name = raygen_program.name;
     std::string sbt_name = "raygen_sbt";
-    corecast_optix::RayGenData data = {
+    corecast::optix::RayGenData data = {
         0.982f, 0.725f, 65.0f,
         static_cast<float>(params.image_width) * 0.5f,
         static_cast<float>(params.image_height) * 0.5f,
@@ -94,10 +94,10 @@ int main()
     optix.build_pipeline(pipeline_name, program_names, link_options);
     
     std::cout << "Creating SBT" << std::endl;
-    optix.create_sbt<corecast_optix::SbtRecord<corecast_optix::RayGenData>, corecast_optix::RayGenData>(sbt_name, raygen_program.name, data);
+    optix.create_sbt<corecast::optix::SbtRecord<corecast::optix::RayGenData>, corecast::optix::RayGenData>(sbt_name, raygen_program.name, data);
     
     std::cout << "Launching pipeline" << std::endl;
-    corecast_optix::Params launch_params = params;
+    corecast::optix::Params launch_params = params;
     optix.launch_pipeline(pipeline_name, launch_params, sbt_name);
 
     std::cout << "Getting result" << std::endl;

@@ -9,9 +9,9 @@
 
 namespace corecast::examples {
 
-void render_depth_map_cpu(const std::vector<corecast_optix::PointXYZI>& points,
+void render_depth_map_cpu(const std::vector<corecast::optix::PointXYZI>& points,
                           float point_radius,
-                          const corecast_optix::PointCloudLaunchParams& params,
+                          const corecast::optix::PointCloudLaunchParams& params,
                           std::vector<float>* out_depth);
 
 void print_depth_diff_stats(const float* gpu_depth,

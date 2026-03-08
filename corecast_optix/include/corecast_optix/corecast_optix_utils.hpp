@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace corecast_optix
+namespace corecast::optix
 {
 /**
  * @brief Check if the CUDA call was successful.
@@ -76,4 +76,4 @@ inline OptixBuildInput configure_point_cloud_input(const std::vector<float3>& ho
     return sphere_input;
 }
 
-}  // namespace corecast_optix
+}  // namespace corecast::optix
