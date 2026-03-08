@@ -80,4 +80,74 @@ class CoreCastOptixSBT
 
 };
 
+template <ValidCUDAType RaygenRecordType, ValidCUDAType RaygenDataType,
+          ValidCUDAType MissRecordType, ValidCUDAType MissDataType,
+          ValidCUDAType HitgroupRecordType, ValidCUDAType HitgroupDataType>
+class CoreCastOptixTraceSBT
+{
+public:
+    CoreCastOptixTraceSBT(
+        const std::string& raygen_program_name,
+        const std::string& miss_program_name,
+        const std::string& hitgroup_program_name,
+        CoreCastOptixProgramRegistry& program_registry,
+        const RaygenDataType& raygen_data,
+        const MissDataType& miss_data,
+        const HitgroupDataType& hitgroup_data) : sbt_({}) {
+
+        raygen_host_record_ptr_ = std::make_unique<RaygenRecordType>();
+        miss_host_record_ptr_ = std::make_unique<MissRecordType>();
+        hitgroup_host_record_ptr_ = std::make_unique<HitgroupRecordType>();
+
+        raygen_host_record_ptr_->data = raygen_data;
+        miss_host_record_ptr_->data = miss_data;
+        hitgroup_host_record_ptr_->data = hitgroup_data;
+
+        OPTIX_CHECK(optixSbtRecordPackHeader(program_registry.get_program_group(raygen_program_name), raygen_host_record_ptr_.get()));
+        OPTIX_CHECK(optixSbtRecordPackHeader(program_registry.get_program_group(miss_program_name), miss_host_record_ptr_.get()));
+        OPTIX_CHECK(optixSbtRecordPackHeader(program_registry.get_program_group(hitgroup_program_name), hitgroup_host_record_ptr_.get()));
+
+        CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&raygen_device_ptr_), sizeof(RaygenRecordType)));
+        CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&miss_device_ptr_), sizeof(MissRecordType)));
+        CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&hitgroup_device_ptr_), sizeof(HitgroupRecordType)));
+
+        CUDA_CHECK(cudaMemcpy(reinterpret_cast<void*>(raygen_device_ptr_), raygen_host_record_ptr_.get(), sizeof(RaygenRecordType), cudaMemcpyHostToDevice));
+        CUDA_CHECK(cudaMemcpy(reinterpret_cast<void*>(miss_device_ptr_), miss_host_record_ptr_.get(), sizeof(MissRecordType), cudaMemcpyHostToDevice));
+        CUDA_CHECK(cudaMemcpy(reinterpret_cast<void*>(hitgroup_device_ptr_), hitgroup_host_record_ptr_.get(), sizeof(HitgroupRecordType), cudaMemcpyHostToDevice));
+
+        sbt_.raygenRecord = raygen_device_ptr_;
+        sbt_.missRecordBase = miss_device_ptr_;
+        sbt_.missRecordStrideInBytes = static_cast<unsigned int>(sizeof(MissRecordType));
+        sbt_.missRecordCount = 1;
+        sbt_.hitgroupRecordBase = hitgroup_device_ptr_;
+        sbt_.hitgroupRecordStrideInBytes = static_cast<unsigned int>(sizeof(HitgroupRecordType));
+        sbt_.hitgroupRecordCount = 1;
+    }
+
+    ~CoreCastOptixTraceSBT() {
+        if (raygen_device_ptr_ != 0) {
+            CUDA_CHECK_NOTHROW(cudaFree(reinterpret_cast<void*>(raygen_device_ptr_)));
+        }
+        if (miss_device_ptr_ != 0) {
+            CUDA_CHECK_NOTHROW(cudaFree(reinterpret_cast<void*>(miss_device_ptr_)));
+        }
+        if (hitgroup_device_ptr_ != 0) {
+            CUDA_CHECK_NOTHROW(cudaFree(reinterpret_cast<void*>(hitgroup_device_ptr_)));
+        }
+    }
+
+    const OptixShaderBindingTable& get_sbt() const { return sbt_; }
+
+private:
+    OptixShaderBindingTable sbt_;
+
+    CUdeviceptr raygen_device_ptr_ = 0;
+    CUdeviceptr miss_device_ptr_ = 0;
+    CUdeviceptr hitgroup_device_ptr_ = 0;
+
+    std::unique_ptr<RaygenRecordType> raygen_host_record_ptr_;
+    std::unique_ptr<MissRecordType> miss_host_record_ptr_;
+    std::unique_ptr<HitgroupRecordType> hitgroup_host_record_ptr_;
+};
+
 }  // namespace corecast_optix
