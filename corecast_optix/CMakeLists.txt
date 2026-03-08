@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(corecast_optix LANGUAGES CXX)
+project(corecast_optix VERSION 0.1.0 LANGUAGES CXX)
 
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 20)
@@ -20,6 +20,8 @@ if(NOT EXISTS "${OPTIX_SDK_PATH}/include/optix.h")
 endif()
 
 find_package(CUDAToolkit REQUIRED)
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
 
 set(CORECAST_CUDA_STD_INCLUDE_DIR "" CACHE PATH "Include root that provides the full cuda/std header tree")
 if(NOT CORECAST_CUDA_STD_INCLUDE_DIR)
@@ -43,6 +45,23 @@ endif()
 message(STATUS "Using cuda/std include root: ${CORECAST_CUDA_STD_INCLUDE_DIR}")
 
 set(SAMPLES_INPUT_GENERATE_PTX 0)
+set(SAMPLES_INPUT_GENERATE_OPTIXIR 0)
+set(SAMPLES_DIR "")
+set(SAMPLES_PTX_DIR "")
+set(SAMPLES_CUDA_DIR "")
+set(SAMPLES_RELATIVE_INCLUDE_DIRS "")
+set(SAMPLES_ABSOLUTE_INCLUDE_DIRS "")
+set(OPTIX_DEBUG_DEVICE_CODE 0)
+set(OPTIX_OPTIXIR_BUILD_CONFIGURATION "")
+set(CUDA_NVRTC_ENABLED 0)
+set(CUDA_NVRTC_OPTIONS "")
+set(CUDA_NVRTC_OPTIONS_DEBUG "")
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/generated")
+configure_file(
+  "${OPTIX_SDK_PATH}/SDK/sampleConfig.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/generated/sampleConfig.h"
+  @ONLY
+)
 
 set(CORECAST_PTX_FILE "${CMAKE_CURRENT_BINARY_DIR}/ptx/draw_solid_color.ptx")
 set(CORECAST_POINTCLOUD_PTX_FILE "${CMAKE_CURRENT_BINARY_DIR}/ptx/pointcloud_to_depth_map.ptx")
@@ -98,6 +117,7 @@ add_library(corecast_optix
   src/corecast_optix.cpp
   src/corecast_depth_map.cpp
 )
+add_library(corecast_optix::corecast_optix ALIAS corecast_optix)
 add_dependencies(corecast_optix corecast_optix_ptx)
 target_compile_definitions(corecast_optix PUBLIC CORECAST_PTX_PATH="${CORECAST_PTX_FILE}")
 target_compile_definitions(corecast_optix PUBLIC CORECAST_POINTCLOUD_PTX_PATH="${CORECAST_POINTCLOUD_PTX_FILE}")
@@ -139,9 +159,45 @@ target_link_libraries(corecast_optix_pointcloud_hello_world
 )
 
 install(TARGETS corecast_optix
-  DESTINATION lib
+  EXPORT corecast_optixTargets
+  ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
 )
 
 install(DIRECTORY include/
   DESTINATION include
+)
+
+set(CORECAST_OPTIX_CONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/corecast_optix")
+
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/corecast_optixConfigVersion.cmake"
+  VERSION "${PROJECT_VERSION}"
+  COMPATIBILITY SameMajorVersion
+)
+
+configure_package_config_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/corecast_optixConfig.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/corecast_optixConfig.cmake"
+  INSTALL_DESTINATION "${CORECAST_OPTIX_CONFIG_INSTALL_DIR}"
+)
+
+install(EXPORT corecast_optixTargets
+  FILE corecast_optixTargets.cmake
+  NAMESPACE corecast_optix::
+  DESTINATION "${CORECAST_OPTIX_CONFIG_INSTALL_DIR}"
+)
+
+install(
+  FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/corecast_optixConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/corecast_optixConfigVersion.cmake"
+  DESTINATION "${CORECAST_OPTIX_CONFIG_INSTALL_DIR}"
+)
+
+export(
+  EXPORT corecast_optixTargets
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/corecast_optixTargets.cmake"
+  NAMESPACE corecast_optix::
 )
