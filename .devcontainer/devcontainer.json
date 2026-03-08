@@ -2,6 +2,7 @@
   "name": "corecast-jazzy",
   "image": "corecast/dev:jazzy-24.04",
   "initializeCommand": "earthly +devcontainer-image",
+  "updateRemoteUserUID": true,
   "runArgs": [
     "--gpus=all"
   ],
