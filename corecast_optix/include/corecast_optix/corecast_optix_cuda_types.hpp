@@ -20,18 +20,24 @@ template <ValidCUDAType UnprocessedType, ValidCUDAType ProcessedType> struct CUD
   static_assert(sizeof(UnprocessedType) == sizeof(ProcessedType), 
             "Type sizes must match for direct byte-copying.");
 
-  CUDABuffer(UnprocessedType *unprocessed_data, int num_elements, ProcessedType *processed_data)
-      : device_ptr_(0), unprocessed_data_(unprocessed_data), num_elements_(num_elements), processed_data_(processed_data),
-        size_in_bytes_(sizeof(UnprocessedType) * num_elements) {
-            if (device_ptr_ == 0) {
+  CUDABuffer(UnprocessedType *unprocessed_data, int num_elements, bool upload_to_device = true)
+      : device_ptr_(0), unprocessed_data_(unprocessed_data), num_elements_(num_elements), processed_data_(new ProcessedType[num_elements]), 
+        size_in_bytes_(sizeof(UnprocessedType) * num_elements) {            
+          
+          if (device_ptr_ == 0) {
                 cudaError_t result = cudaMalloc(reinterpret_cast<void **>(&device_ptr_), size_in_bytes_);
                 if (result != cudaSuccess) {
                   throw std::runtime_error("Failed to allocate device memory");
                 }
+                if (upload_to_device) {
+                  upload_to_device_sync();
+                }
               }
+            
         }
 
   ~CUDABuffer() {
+    delete[] processed_data_;
     if (device_ptr_ != 0) {
       cudaFree(reinterpret_cast<void *>(device_ptr_));
     }
@@ -41,7 +47,7 @@ template <ValidCUDAType UnprocessedType, ValidCUDAType ProcessedType> struct CUD
   CUDABuffer& operator=(const CUDABuffer&) = delete;
 
   CUdeviceptr device_ptr_;
-  const size_t size_in_bytes_;
+  size_t size_in_bytes_;
   UnprocessedType *unprocessed_data_;
   unsigned int num_elements_;
   ProcessedType *processed_data_;
