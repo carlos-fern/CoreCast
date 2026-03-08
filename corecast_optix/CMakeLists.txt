@@ -96,6 +96,7 @@ add_library(corecast_optix
   src/corecast_optix_utils.cpp
   src/corecast_optix_pipeline.cpp
   src/corecast_optix.cpp
+  src/corecast_depth_map.cpp
 )
 add_dependencies(corecast_optix corecast_optix_ptx)
 target_compile_definitions(corecast_optix PUBLIC CORECAST_PTX_PATH="${CORECAST_PTX_FILE}")
@@ -129,6 +130,7 @@ target_link_libraries(corecast_optix
 
 add_executable(corecast_optix_pointcloud_hello_world
   examples/hello_world_point_cloud.cpp
+  examples/hello_world_point_cloud_helpers.cpp
 )
 
 target_link_libraries(corecast_optix_pointcloud_hello_world
