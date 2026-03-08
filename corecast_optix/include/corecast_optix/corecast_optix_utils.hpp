@@ -30,7 +30,7 @@ std::vector<char> read_file_bytes(const std::string& path);
 
 struct float3 { float x, y, z; };
 
-OptixBuildInput configure_point_cloud_input(const std::vector<float3>& host_points, float point_radius) {
+inline OptixBuildInput configure_point_cloud_input(const std::vector<float3>& host_points, float point_radius) {
     
     // Allocate and copy the point coordinates (centers) to the GPU
     CUdeviceptr d_points = 0;
@@ -74,5 +74,6 @@ OptixBuildInput configure_point_cloud_input(const std::vector<float3>& host_poin
     
    
     return sphere_input;
+}
 
 }  // namespace corecast_optix

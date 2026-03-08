@@ -12,6 +12,7 @@
 #include "corecast_optix/corecast_optix_pipeline.hpp"
 #include "corecast_optix/corecast_optix_launch.hpp"
 #include "corecast_optix/corecast_optix_sbt.hpp"
+#include "corecast_optix/corecast_optix_accel.hpp"
 
 
 namespace corecast_optix
@@ -113,6 +114,37 @@ class CoreCastOptix
         sbts_[sbt_name] = sbt;
     }
 
+    template <typename RaygenRecordType, typename RaygenDataType,
+              typename MissRecordType, typename MissDataType,
+              typename HitgroupRecordType, typename HitgroupDataType>
+    void create_trace_sbt(
+        std::string &sbt_name,
+        std::string &raygen_program_name,
+        std::string &miss_program_name,
+        std::string &hitgroup_program_name,
+        const RaygenDataType& raygen_data,
+        const MissDataType& miss_data,
+        const HitgroupDataType& hitgroup_data) {
+        auto sbt = std::make_shared<CoreCastOptixTraceSBT<
+            RaygenRecordType, RaygenDataType,
+            MissRecordType, MissDataType,
+            HitgroupRecordType, HitgroupDataType>>(
+            raygen_program_name,
+            miss_program_name,
+            hitgroup_program_name,
+            *program_registry_,
+            raygen_data,
+            miss_data,
+            hitgroup_data);
+        sbt_tables_[sbt_name] = sbt->get_sbt();
+        sbts_[sbt_name] = sbt;
+    }
+
+    void create_acceleration_structure(std::string &acceleration_structure_name, OptixAccelBuildOptions& build_options, const std::vector<OptixBuildInput>& build_inputs){
+        auto acceleration_structure = std::make_shared<CoreCastOptixAccel>(context_->get_context(), build_options, build_inputs, stream_);
+        acceleration_structures_[acceleration_structure_name] = acceleration_structure;
+    }
+
     private:
     std::shared_ptr<CoreCastOptixContext> context_;
     std::unordered_map<std::string, std::shared_ptr<CoreCastOptixModule>> modules_;
@@ -121,6 +153,8 @@ class CoreCastOptix
     std::unordered_map<std::string, std::shared_ptr<ICoreCastOptixLaunch>> launchers_;
     std::unordered_map<std::string, OptixShaderBindingTable> sbt_tables_;
     std::unordered_map<std::string, std::shared_ptr<void>> sbts_;
+    std::unordered_map<std::string, std::shared_ptr<CoreCastOptixAccel>> acceleration_structures_;
+    CUstream stream_ = 0;
 
 };    
 
