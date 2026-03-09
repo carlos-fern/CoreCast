@@ -26,6 +26,7 @@ public:
 
   float* launch_depth_map();
   const corecast::optix::PointCloudLaunchParams& get_launch_params() const;
+  void update_point_cloud(std::vector<PointCloudType>& point_cloud);
 
 private:
   void set_pipeline_compile_options();

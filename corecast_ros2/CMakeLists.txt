@@ -22,7 +22,11 @@ target_compile_features(corecast_ros2_node PUBLIC cxx_std_20)
 ament_target_dependencies(corecast_ros2_node rclcpp sensor_msgs)
 target_link_libraries(corecast_ros2_node corecast_optix::corecast_optix)
 
-install(TARGETS corecast_ros2_node
+add_executable(corecast_ros2_pointcloud_sim_node src/corecast_ros2_pointcloud_sim_node.cpp)
+target_compile_features(corecast_ros2_pointcloud_sim_node PUBLIC cxx_std_20)
+ament_target_dependencies(corecast_ros2_pointcloud_sim_node rclcpp sensor_msgs)
+
+install(TARGETS corecast_ros2_node corecast_ros2_pointcloud_sim_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
