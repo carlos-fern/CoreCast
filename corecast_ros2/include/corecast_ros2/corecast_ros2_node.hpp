@@ -2,17 +2,16 @@
 #define CORECAST_ROS2__CORECAST_ROS2_NODE_HPP_
 
 #include <rclcpp/rclcpp.hpp>
+
 #include "corecast_ros2/corecast_ros2_depth_map.hpp"
 
-namespace corecast::ros2
-{
+namespace corecast::ros2 {
 
-class CorecastRos2Node : public rclcpp::Node
-{
-public:
+class CorecastRos2Node : public rclcpp::Node {
+ public:
   CorecastRos2Node();
 
-  private:
+ private:
   CoreCastRos2DepthMap depth_map_processor_;
 };
 

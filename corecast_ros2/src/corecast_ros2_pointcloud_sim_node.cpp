@@ -1,39 +1,34 @@
-#include <chrono>
-#include <cmath>
-#include <cstdint>
-#include <memory>
-#include <string>
-
-#include <geometry_msgs/msg/transform_stamped.hpp>
-#include <rclcpp/rclcpp.hpp>
-#include <sensor_msgs/msg/point_cloud2.hpp>
-#include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_broadcaster.h>
 
-namespace corecast::ros2
-{
+#include <chrono>
+#include <cmath>
+#include <cstdint>
+#include <geometry_msgs/msg/transform_stamped.hpp>
+#include <memory>
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <sensor_msgs/point_cloud2_iterator.hpp>
+#include <string>
 
-class CorecastRos2PointcloudSimNode : public rclcpp::Node
-{
-public:
-  CorecastRos2PointcloudSimNode()
-  : Node("corecast_ros2_pointcloud_sim_node"), cloud_phase_(0.0), frame_phase_(0.0)
-  {
+namespace corecast::ros2 {
+
+class CorecastRos2PointcloudSimNode : public rclcpp::Node {
+ public:
+  CorecastRos2PointcloudSimNode() : Node("corecast_ros2_pointcloud_sim_node"), cloud_phase_(0.0), frame_phase_(0.0) {
     static_pointcloud_ = declare_parameter<bool>("static_pointcloud", true);
     publisher_ = create_publisher<sensor_msgs::msg::PointCloud2>("point_cloud", rclcpp::QoS(10));
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
     timer_ = create_wall_timer(std::chrono::milliseconds(10),
-      std::bind(&CorecastRos2PointcloudSimNode::publish_pointcloud, this));
+                               std::bind(&CorecastRos2PointcloudSimNode::publish_pointcloud, this));
     RCLCPP_INFO(get_logger(),
-      "PointCloud2 simulator publishing to /point_cloud with TF sim_lidar -> camera_link "
-      "(static_pointcloud=%s)",
-      static_pointcloud_ ? "true" : "false");
+                "PointCloud2 simulator publishing to /point_cloud with TF sim_lidar -> camera_link "
+                "(static_pointcloud=%s)",
+                static_pointcloud_ ? "true" : "false");
   }
 
-private:
-  void publish_sensor_tf(const rclcpp::Time& stamp, float t)
-  {
+ private:
+  void publish_sensor_tf(const rclcpp::Time& stamp, float t) {
     geometry_msgs::msg::TransformStamped tf_msg;
     tf_msg.header.stamp = stamp;
     tf_msg.header.frame_id = "sim_lidar";
@@ -54,11 +49,10 @@ private:
     tf_broadcaster_->sendTransform(tf_msg);
   }
 
-  void publish_pointcloud()
-  {
+  void publish_pointcloud() {
     // Dense spherical shell with strong global deformation for clear motion from any viewpoint.
-    constexpr uint32_t kWidth = 720;   // azimuth samples
-    constexpr uint32_t kHeight = 96;   // elevation rings
+    constexpr uint32_t kWidth = 720;  // azimuth samples
+    constexpr uint32_t kHeight = 96;  // elevation rings
     constexpr float kRadius = 8.0f;
     constexpr float kTwoPi = 6.28318530717958647692f;
     constexpr float kPi = 3.14159265358979323846f;
@@ -78,13 +72,9 @@ private:
 
     sensor_msgs::PointCloud2Modifier modifier(msg);
     modifier.setPointCloud2Fields(
-      6,
-      "x", 1, sensor_msgs::msg::PointField::FLOAT32,
-      "y", 1, sensor_msgs::msg::PointField::FLOAT32,
-      "z", 1, sensor_msgs::msg::PointField::FLOAT32,
-      "intensity", 1, sensor_msgs::msg::PointField::FLOAT32,
-      "ring", 1, sensor_msgs::msg::PointField::UINT16,
-      "time", 1, sensor_msgs::msg::PointField::FLOAT32);
+        6, "x", 1, sensor_msgs::msg::PointField::FLOAT32, "y", 1, sensor_msgs::msg::PointField::FLOAT32, "z", 1,
+        sensor_msgs::msg::PointField::FLOAT32, "intensity", 1, sensor_msgs::msg::PointField::FLOAT32, "ring", 1,
+        sensor_msgs::msg::PointField::UINT16, "time", 1, sensor_msgs::msg::PointField::FLOAT32);
     modifier.resize(static_cast<size_t>(kWidth) * kHeight);
 
     sensor_msgs::PointCloud2Iterator<float> x_it(msg, "x");
@@ -158,8 +148,7 @@ private:
 
 }  // namespace corecast::ros2
 
-int main(int argc, char ** argv)
-{
+int main(int argc, char** argv) {
   rclcpp::init(argc, argv);
   rclcpp::spin(std::make_shared<corecast::ros2::CorecastRos2PointcloudSimNode>());
   rclcpp::shutdown();

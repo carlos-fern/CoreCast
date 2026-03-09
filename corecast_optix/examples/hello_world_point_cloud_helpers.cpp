@@ -12,16 +12,12 @@ namespace corecast::examples {
 
 namespace {
 
-inline float dot3(const float3& a, const float3& b) {
-  return a.x * b.x + a.y * b.y + a.z * b.z;
-}
+inline float dot3(const float3& a, const float3& b) { return a.x * b.x + a.y * b.y + a.z * b.z; }
 
 }  // namespace
 
-void render_depth_map_cpu(const std::vector<corecast::optix::PointXYZI>& points,
-                          float point_radius,
-                          const corecast::optix::PointCloudLaunchParams& params,
-                          std::vector<float>* out_depth) {
+void render_depth_map_cpu(const std::vector<corecast::optix::PointXYZI>& points, float point_radius,
+                          const corecast::optix::PointCloudLaunchParams& params, std::vector<float>* out_depth) {
   const unsigned int width = params.image_width;
   const unsigned int height = params.image_height;
   out_depth->assign(static_cast<size_t>(width) * height, 0.0f);
@@ -29,9 +25,8 @@ void render_depth_map_cpu(const std::vector<corecast::optix::PointXYZI>& points,
   // Traditional CPU depth-map approach: project points and z-buffer.
   for (const auto& p : points) {
     const float3 world = make_float3(p.x, p.y, p.z);
-    const float3 rel = make_float3(
-        world.x - params.sensor_origin.x, world.y - params.sensor_origin.y,
-        world.z - params.sensor_origin.z);
+    const float3 rel = make_float3(world.x - params.sensor_origin.x, world.y - params.sensor_origin.y,
+                                   world.z - params.sensor_origin.z);
 
     const float x_cam = dot3(rel, params.sensor_x_axis);
     const float y_cam = dot3(rel, params.sensor_y_axis);
@@ -49,8 +44,7 @@ void render_depth_map_cpu(const std::vector<corecast::optix::PointXYZI>& points,
       continue;
     }
 
-    const float radius_px_f =
-        std::max(1.0f, point_radius / z_cam * 0.5f * static_cast<float>(width));
+    const float radius_px_f = std::max(1.0f, point_radius / z_cam * 0.5f * static_cast<float>(width));
     const int radius_px = static_cast<int>(std::ceil(radius_px_f));
 
     for (int oy = -radius_px; oy <= radius_px; ++oy) {
@@ -60,12 +54,10 @@ void render_depth_map_cpu(const std::vector<corecast::optix::PointXYZI>& points,
         }
         const int px = cx + ox;
         const int py = cy + oy;
-        if (px < 0 || px >= static_cast<int>(width) || py < 0 ||
-            py >= static_cast<int>(height)) {
+        if (px < 0 || px >= static_cast<int>(width) || py < 0 || py >= static_cast<int>(height)) {
           continue;
         }
-        const size_t idx =
-            static_cast<size_t>(py) * width + static_cast<size_t>(px);
+        const size_t idx = static_cast<size_t>(py) * width + static_cast<size_t>(px);
         float& z = (*out_depth)[idx];
         if (z == 0.0f || z_cam < z) {
           z = z_cam;
@@ -75,8 +67,7 @@ void render_depth_map_cpu(const std::vector<corecast::optix::PointXYZI>& points,
   }
 }
 
-void print_depth_diff_stats(const float* gpu_depth,
-                            const std::vector<float>& cpu_depth, float t_max) {
+void print_depth_diff_stats(const float* gpu_depth, const std::vector<float>& cpu_depth, float t_max) {
   const size_t count = cpu_depth.size();
   size_t compared = 0;
   double sum_abs = 0.0;
@@ -93,8 +84,7 @@ void print_depth_diff_stats(const float* gpu_depth,
       ++cpu_hits;
     }
     if ((g > 0.0f && g < t_max) || (c > 0.0f && c < t_max)) {
-      const double abs_err =
-          std::abs(static_cast<double>(g) - static_cast<double>(c));
+      const double abs_err = std::abs(static_cast<double>(g) - static_cast<double>(c));
       sum_abs += abs_err;
       max_abs = std::max(max_abs, abs_err);
       ++compared;
@@ -102,13 +92,11 @@ void print_depth_diff_stats(const float* gpu_depth,
   }
 
   const double mae = compared > 0 ? (sum_abs / static_cast<double>(compared)) : 0.0;
-  std::cout << "CPU/GPU depth comparison: compared=" << compared
-            << ", gpu_hits=" << gpu_hits << ", cpu_hits=" << cpu_hits
-            << ", mae=" << mae << ", max_abs_error=" << max_abs << std::endl;
+  std::cout << "CPU/GPU depth comparison: compared=" << compared << ", gpu_hits=" << gpu_hits
+            << ", cpu_hits=" << cpu_hits << ", mae=" << mae << ", max_abs_error=" << max_abs << std::endl;
 }
 
-void write_depthmap_pgm(const std::string& output_path, const float* depth,
-                        unsigned int width, unsigned int height,
+void write_depthmap_pgm(const std::string& output_path, const float* depth, unsigned int width, unsigned int height,
                         float miss_value) {
   const size_t count = static_cast<size_t>(width) * static_cast<size_t>(height);
   if (count == 0 || depth == nullptr) {
@@ -149,12 +137,10 @@ void write_depthmap_pgm(const std::string& output_path, const float* depth,
 
   std::ofstream out(output_path, std::ios::binary);
   out << "P5\n" << width << " " << height << "\n255\n";
-  out.write(reinterpret_cast<const char*>(pixels.data()),
-            static_cast<std::streamsize>(pixels.size()));
+  out.write(reinterpret_cast<const char*>(pixels.data()), static_cast<std::streamsize>(pixels.size()));
 }
 
-void write_depthmap_f32(const std::string& output_path, const float* depth,
-                        unsigned int width, unsigned int height) {
+void write_depthmap_f32(const std::string& output_path, const float* depth, unsigned int width, unsigned int height) {
   const size_t count = static_cast<size_t>(width) * static_cast<size_t>(height);
   if (count == 0 || depth == nullptr) {
     throw std::runtime_error("Depth buffer is empty");
@@ -167,8 +153,7 @@ void write_depthmap_f32(const std::string& output_path, const float* depth,
 
   out.write(reinterpret_cast<const char*>(&width), sizeof(width));
   out.write(reinterpret_cast<const char*>(&height), sizeof(height));
-  out.write(reinterpret_cast<const char*>(depth),
-            static_cast<std::streamsize>(count * sizeof(float)));
+  out.write(reinterpret_cast<const char*>(depth), static_cast<std::streamsize>(count * sizeof(float)));
 }
 
 }  // namespace corecast::examples
