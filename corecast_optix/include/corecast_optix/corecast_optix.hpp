@@ -54,7 +54,7 @@ class CoreCastOptix {
    * @param ptx_path The path to the PTX file to use for the module.
    */
   void create_module(std::string& module_name, OptixPipelineCompileOptions& pipeline_compile_options,
-                     OptixModuleCompileOptions& module_compile_options, OptixBuiltinISOptions& builtin_is_options);
+                     OptixModuleCompileOptions& module_compile_options, OptixBuiltinISOptions& builtin_is_optionsh);
 
   /**
    * @brief Get a module.

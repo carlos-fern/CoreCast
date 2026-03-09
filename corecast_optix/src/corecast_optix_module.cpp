@@ -30,6 +30,10 @@ CoreCastOptixModule::CoreCastOptixModule(std::shared_ptr<CoreCastOptixContext> c
                                           &builtin_is_options_, &module_));
 }
 
-CoreCastOptixModule::~CoreCastOptixModule() = default;
+CoreCastOptixModule::~CoreCastOptixModule() {
+  if (module_ != nullptr) {
+    optixModuleDestroy(module_);
+  }
+}
 
 }  // namespace corecast::optix
