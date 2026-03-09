@@ -7,7 +7,7 @@ namespace corecast::ros2
 
 CorecastRos2Node::CorecastRos2Node()
 : Node("corecast_ros2_node"),
-  depth_map_processor_("corecast_ros2_depth_map")
+  depth_map_processor_(*this)
 {
   RCLCPP_INFO(this->get_logger(), "corecast_ros2_node started");
 }

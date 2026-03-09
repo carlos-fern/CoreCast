@@ -73,6 +73,12 @@ const corecast::optix::PointCloudLaunchParams& CoreCastDepthMap<PointCloudType>:
 }
 
 template <typename PointCloudType>
+void CoreCastDepthMap<PointCloudType>::update_point_cloud(std::vector<PointCloudType>& point_cloud) {
+  point_cloud_buffer_ = std::make_unique<corecast::optix::CUDABuffer<PointCloudType, PointCloudType>>(
+      point_cloud.data(), static_cast<int>(point_cloud.size()), true);
+}
+
+template <typename PointCloudType>
 void CoreCastDepthMap<PointCloudType>::set_pipeline_compile_options() {
   depth_map_pipeline_compile_options_ = {};
   depth_map_pipeline_compile_options_.usesMotionBlur = false;

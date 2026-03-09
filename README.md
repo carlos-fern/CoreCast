@@ -23,10 +23,20 @@ colcon build --base-paths corecast_ros2
 
 `corecast_ros2` links against `corecast_optix::corecast_optix` through `find_package(corecast_optix CONFIG REQUIRED)`.
 
-## Run Example
+## Demo
+
+[![CoreCast Depth Map POC](https://drive.google.com/thumbnail?id=1eFX_67Zpg9qzzgYJ0ya5WZzA7KFfElFe)](https://drive.google.com/file/d/1eFX_67Zpg9qzzgYJ0ya5WZzA7KFfElFe/view?usp=sharing)
+
+## Run
+
+Launch the depth node, point cloud simulator, and Foxglove bridge together:
 
 ```bash
-build/corecast_optix/corecast_optix_pointcloud_hello_world
+source /opt/ros/jazzy/setup.bash
+source install/setup.bash
+ros2 launch corecast_ros2 corecast_ros2_with_sim.launch.py
 ```
 
-The point cloud example writes output artifacts to the build directory.
+The depth node subscribes to `/point_cloud`, processes each frame through OptiX, and publishes the result as a `32FC1` image on `/depth_map`.
+
+To view in Foxglove Studio, connect to `ws://localhost:8765`.
