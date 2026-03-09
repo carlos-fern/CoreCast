@@ -13,10 +13,20 @@ cmake -S corecast_optix -B build/corecast_optix \
 cmake --build build/corecast_optix -j
 ```
 
+This configures and builds the `corecast_optix` library and also writes a CMake package config into `build/corecast_optix`, so other CMake projects can import it with `find_package(corecast_optix CONFIG REQUIRED)`.
+
+## Build ROS 2 package
+
+```bash
+colcon build --base-paths corecast_ros2
+```
+
+`corecast_ros2` links against `corecast_optix::corecast_optix` through `find_package(corecast_optix CONFIG REQUIRED)`.
+
 ## Run Example
 
 ```bash
-build/corecast_optix/corecast_optix_hello_world
+build/corecast_optix/corecast_optix_pointcloud_hello_world
 ```
 
-The example writes an output image to `corecast_output.ppm`.
+The point cloud example writes output artifacts to the build directory.
