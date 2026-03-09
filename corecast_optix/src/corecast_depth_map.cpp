@@ -22,6 +22,7 @@ template <typename PointCloudType>
 void CoreCastDepthMap<PointCloudType>::setup_depth_map_processing(std::vector<PointCloudType>& point_cloud,
                                                                   unsigned int image_width,
                                                                   unsigned int image_height,
+                                                                  const corecast::optix::CameraFrameData& camera_frame_data,
                                                                   float point_radius) {
   if (point_cloud.empty()) {
     throw std::runtime_error("Point cloud cannot be empty");
@@ -56,7 +57,7 @@ void CoreCastDepthMap<PointCloudType>::setup_depth_map_processing(std::vector<Po
   set_builtin_is_options();
   set_programs();
   set_pipeline_names();
-  set_launch_params(image_width, image_height);
+  set_launch_params(image_width, image_height, camera_frame_data);
 
   create_module_pipeline_and_sbt();
 }
@@ -134,14 +135,15 @@ void CoreCastDepthMap<PointCloudType>::set_pipeline_names() {
 }
 
 template <typename PointCloudType>
-void CoreCastDepthMap<PointCloudType>::set_launch_params(unsigned int image_width, unsigned int image_height) {
+void CoreCastDepthMap<PointCloudType>::set_launch_params(
+    unsigned int image_width, unsigned int image_height, const corecast::optix::CameraFrameData& camera_frame_data) {
   point_cloud_launch_params_ = {};
   point_cloud_launch_params_.image_width = image_width;
   point_cloud_launch_params_.image_height = image_height;
-  point_cloud_launch_params_.sensor_origin = make_float3(0.0f, 0.0f, 0.0f);
-  point_cloud_launch_params_.sensor_x_axis = make_float3(1.0f, 0.0f, 0.0f);
-  point_cloud_launch_params_.sensor_y_axis = make_float3(0.0f, 1.0f, 0.0f);
-  point_cloud_launch_params_.sensor_z_axis = make_float3(0.0f, 0.0f, 1.0f);
+  point_cloud_launch_params_.sensor_origin = camera_frame_data.sensor_origin;
+  point_cloud_launch_params_.sensor_x_axis = camera_frame_data.sensor_x_axis;
+  point_cloud_launch_params_.sensor_y_axis = camera_frame_data.sensor_y_axis;
+  point_cloud_launch_params_.sensor_z_axis = camera_frame_data.sensor_z_axis;
   point_cloud_launch_params_.t_min = 0.001f;
   point_cloud_launch_params_.t_max = 1000.0f;
   point_cloud_launch_params_.handle = point_cloud_accel_->get_output_handle();

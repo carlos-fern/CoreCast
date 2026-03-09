@@ -157,4 +157,11 @@ struct PointCloudRayPayload {
   PointXYZI point;
 };
 
+struct CameraFrameData {
+  float3 sensor_origin;
+  float3 sensor_x_axis;
+  float3 sensor_y_axis;
+  float3 sensor_z_axis;
+};
+
 } // namespace corecast::optix

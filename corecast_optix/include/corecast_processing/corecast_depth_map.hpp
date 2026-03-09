@@ -23,9 +23,15 @@ public:
                                   unsigned int image_width,
                                   unsigned int image_height,
                                   float point_radius = 0.01f);
+  void setup_depth_map_processing(std::vector<PointCloudType>& point_cloud,
+                                  unsigned int image_width,
+                                  unsigned int image_height,
+                                  const corecast::optix::CameraFrameData& camera_frame_data,
+                                  float point_radius = 0.01f);
 
   float* launch_depth_map();
   const corecast::optix::PointCloudLaunchParams& get_launch_params() const;
+  void set_camera_frame_data(const corecast::optix::CameraFrameData& camera_frame_data);
   void update_point_cloud(std::vector<PointCloudType>& point_cloud);
 
 private:
@@ -35,7 +41,9 @@ private:
   void set_builtin_is_options();
   void set_programs();
   void set_pipeline_names();
-  void set_launch_params(unsigned int image_width, unsigned int image_height);
+  void set_launch_params(unsigned int image_width,
+                         unsigned int image_height,
+                         const corecast::optix::CameraFrameData& camera_frame_data);
   void set_point_cloud_build_input();
   void set_point_cloud_accel_build_options();
   void create_module_pipeline_and_sbt();
