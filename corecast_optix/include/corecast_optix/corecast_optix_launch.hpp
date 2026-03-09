@@ -1,8 +1,7 @@
 #pragma once
 
-#include <optix.h>
-
 #include <cuda_runtime.h>
+#include <optix.h>
 
 #include "corecast_optix/corecast_optix_context.hpp"
 #include "corecast_optix/corecast_optix_module.hpp"
@@ -17,28 +16,24 @@ struct ICoreCastOptixLaunch {
 
 template <typename ParamsType>
 class CoreCastOptixLaunch final : public ICoreCastOptixLaunch {
-
-public:
-  CoreCastOptixLaunch(std::shared_ptr<CoreCastOptixContext> context,
-                      const ParamsType &params, OptixPipeline pipeline,
+ public:
+  CoreCastOptixLaunch(std::shared_ptr<CoreCastOptixContext> context, const ParamsType &params, OptixPipeline pipeline,
                       OptixShaderBindingTable &sbt)
       : context_(context), params_(params) {
-
     const void *launch_param_ptr = static_cast<const void *>(&params_);
     const size_t launch_param_size = sizeof(ParamsType);
 
+    CUDA_CHECK(cudaMalloc(reinterpret_cast<void **>(&d_param_), launch_param_size));
     CUDA_CHECK(
-        cudaMalloc(reinterpret_cast<void **>(&d_param_), launch_param_size));
-    CUDA_CHECK(cudaMemcpy(reinterpret_cast<void *>(d_param_), launch_param_ptr,
-                          launch_param_size, cudaMemcpyHostToDevice));
+        cudaMemcpy(reinterpret_cast<void *>(d_param_), launch_param_ptr, launch_param_size, cudaMemcpyHostToDevice));
 
     if constexpr (std::is_same_v<ParamsType, Params>) {
-      OPTIX_CHECK(optixLaunch(pipeline, stream_, d_param_, launch_param_size,
-                              &sbt, params_.image_width, params_.image_height,
+      OPTIX_CHECK(optixLaunch(pipeline, stream_, d_param_, launch_param_size, &sbt, params_.image_width,
+                              params_.image_height,
                               /*depth=*/1));
     } else if constexpr (std::is_same_v<ParamsType, PointCloudLaunchParams>) {
-      OPTIX_CHECK(optixLaunch(pipeline, stream_, d_param_, launch_param_size,
-                              &sbt, params_.image_width, params_.image_height, /*depth=*/1));
+      OPTIX_CHECK(optixLaunch(pipeline, stream_, d_param_, launch_param_size, &sbt, params_.image_width,
+                              params_.image_height, /*depth=*/1));
     }
 
     CUDA_CHECK(cudaStreamSynchronize(stream_));
@@ -54,11 +49,11 @@ public:
 
   CUstream get_stream() const { return stream_; }
 
-private:
+ private:
   std::shared_ptr<CoreCastOptixContext> context_;
   CUstream stream_ = 0;
   ParamsType params_;
   CUdeviceptr d_param_ = 0;
 };
 
-} // namespace corecast::optix
+}  // namespace corecast::optix

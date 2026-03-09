@@ -12,17 +12,14 @@ extern "C" __global__ void __raygen__pointcloud_to_depth_map() {
   uint32_t payload = 0;
 
   // Map pixel coordinates to normalized image-plane coordinates in [-1, 1].
-  const float2 ray_aim_point = make_float2(
-      (2.0f * static_cast<float>(pixel_coordinate.x) + 1.0f) / static_cast<float>(resolution.x) - 1.0f,
-      (2.0f * static_cast<float>(pixel_coordinate.y) + 1.0f) / static_cast<float>(resolution.y) - 1.0f);
+  const float2 ray_aim_point =
+      make_float2((2.0f * static_cast<float>(pixel_coordinate.x) + 1.0f) / static_cast<float>(resolution.x) - 1.0f,
+                  (2.0f * static_cast<float>(pixel_coordinate.y) + 1.0f) / static_cast<float>(resolution.y) - 1.0f);
 
   const float3 ray_direction = make_float3(
-      ray_aim_point.x * params.sensor_x_axis.x + ray_aim_point.y * params.sensor_y_axis.x +
-          params.sensor_z_axis.x,
-      ray_aim_point.x * params.sensor_x_axis.y + ray_aim_point.y * params.sensor_y_axis.y +
-          params.sensor_z_axis.y,
-      ray_aim_point.x * params.sensor_x_axis.z + ray_aim_point.y * params.sensor_y_axis.z +
-          params.sensor_z_axis.z);
+      ray_aim_point.x * params.sensor_x_axis.x + ray_aim_point.y * params.sensor_y_axis.x + params.sensor_z_axis.x,
+      ray_aim_point.x * params.sensor_x_axis.y + ray_aim_point.y * params.sensor_y_axis.y + params.sensor_z_axis.y,
+      ray_aim_point.x * params.sensor_x_axis.z + ray_aim_point.y * params.sensor_y_axis.z + params.sensor_z_axis.z);
 
   optixTrace(params.handle, params.sensor_origin, ray_direction, params.t_min, params.t_max, 0.0f,
              OptixVisibilityMask(255), OPTIX_RAY_FLAG_DISABLE_ANYHIT, 0, 1, 0, payload);
