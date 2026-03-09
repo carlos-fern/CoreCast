@@ -6,24 +6,15 @@
 namespace corecast::processing {
 
 template <typename PointCloudType>
-CoreCastDepthMap<PointCloudType>::CoreCastDepthMap(corecast::optix::CoreCastOptix& optix) : optix_(optix) {
+CoreCastDepthMap<PointCloudType>::CoreCastDepthMap(corecast::optix::CoreCastOptix& optix,
+                                                   std::vector<PointCloudType>& point_cloud, unsigned int image_width,
+                                                   unsigned int image_height,
+                                                   const corecast::optix::CameraFrameData& camera_frame_data,
+                                                   float point_radius)
+    : optix_(optix) {
   static_assert(std::is_same_v<PointCloudType, corecast::optix::PointXYZI>,
                 "CoreCastDepthMap currently expects PointCloudType == corecast::optix::PointXYZI");
-}
 
-template <typename PointCloudType>
-CoreCastDepthMap<PointCloudType>::~CoreCastDepthMap() {
-  if (sphere_is_module_ != nullptr) {
-    OPTIX_CHECK_NOTHROW(optixModuleDestroy(sphere_is_module_));
-  }
-}
-
-template <typename PointCloudType>
-void CoreCastDepthMap<PointCloudType>::setup_depth_map_processing(std::vector<PointCloudType>& point_cloud,
-                                                                  unsigned int image_width,
-                                                                  unsigned int image_height,
-                                                                  const corecast::optix::CameraFrameData& camera_frame_data,
-                                                                  float point_radius) {
   if (point_cloud.empty()) {
     throw std::runtime_error("Point cloud cannot be empty");
   }
@@ -40,8 +31,7 @@ void CoreCastDepthMap<PointCloudType>::setup_depth_map_processing(std::vector<Po
   point_centers_buffer_ = std::make_unique<corecast::optix::CUDABuffer<float3, float3>>(
       point_centers_host_.data(), static_cast<int>(point_centers_host_.size()), true);
 
-  point_radius_buffer_ = std::make_unique<corecast::optix::CUDABuffer<float, float>>(
-      &point_radius, 1, true);
+  point_radius_buffer_ = std::make_unique<corecast::optix::CUDABuffer<float, float>>(&point_radius, 1, true);
 
   set_point_cloud_build_input();
   set_point_cloud_accel_build_options();
@@ -63,6 +53,13 @@ void CoreCastDepthMap<PointCloudType>::setup_depth_map_processing(std::vector<Po
 }
 
 template <typename PointCloudType>
+CoreCastDepthMap<PointCloudType>::~CoreCastDepthMap() {
+  if (sphere_is_module_ != nullptr) {
+    OPTIX_CHECK_NOTHROW(optixModuleDestroy(sphere_is_module_));
+  }
+}
+
+template <typename PointCloudType>
 float* CoreCastDepthMap<PointCloudType>::launch_depth_map() {
   optix_.launch_pipeline(pipeline_name_, point_cloud_launch_params_, sbt_name_);
   return optix_.get_result<float, float>(pipeline_name_, *depth_buffer_);
@@ -71,12 +68,6 @@ float* CoreCastDepthMap<PointCloudType>::launch_depth_map() {
 template <typename PointCloudType>
 const corecast::optix::PointCloudLaunchParams& CoreCastDepthMap<PointCloudType>::get_launch_params() const {
   return point_cloud_launch_params_;
-}
-
-template <typename PointCloudType>
-void CoreCastDepthMap<PointCloudType>::update_point_cloud(std::vector<PointCloudType>& point_cloud) {
-  point_cloud_buffer_ = std::make_unique<corecast::optix::CUDABuffer<PointCloudType, PointCloudType>>(
-      point_cloud.data(), static_cast<int>(point_cloud.size()), true);
 }
 
 template <typename PointCloudType>
@@ -135,8 +126,8 @@ void CoreCastDepthMap<PointCloudType>::set_pipeline_names() {
 }
 
 template <typename PointCloudType>
-void CoreCastDepthMap<PointCloudType>::set_launch_params(
-    unsigned int image_width, unsigned int image_height, const corecast::optix::CameraFrameData& camera_frame_data) {
+void CoreCastDepthMap<PointCloudType>::set_launch_params(unsigned int image_width, unsigned int image_height,
+                                                         const corecast::optix::CameraFrameData& camera_frame_data) {
   point_cloud_launch_params_ = {};
   point_cloud_launch_params_.image_width = image_width;
   point_cloud_launch_params_.image_height = image_height;
@@ -182,8 +173,7 @@ void CoreCastDepthMap<PointCloudType>::set_point_cloud_accel_build_options() {
 template <typename PointCloudType>
 void CoreCastDepthMap<PointCloudType>::create_module_pipeline_and_sbt() {
   std::string ptx_path = CORECAST_POINTCLOUD_PTX_PATH;
-  optix_.create_module(module_name_, depth_map_pipeline_compile_options_, depth_map_module_compile_options_,
-                       ptx_path);
+  optix_.create_module(module_name_, depth_map_pipeline_compile_options_, depth_map_module_compile_options_, ptx_path);
 
   OPTIX_CHECK(optixBuiltinISModuleGet(optix_.get_device_context(), &depth_map_module_compile_options_,
                                       &depth_map_pipeline_compile_options_, &depth_map_builtin_is_options_,
@@ -204,8 +194,7 @@ void CoreCastDepthMap<PointCloudType>::create_module_pipeline_and_sbt() {
       corecast::optix::SbtRecord<corecast::optix::PointCloudRayGenData>, corecast::optix::PointCloudRayGenData,
       corecast::optix::SbtRecord<corecast::optix::PointCloudMissData>, corecast::optix::PointCloudMissData,
       corecast::optix::SbtRecord<corecast::optix::PointCloudHitData>, corecast::optix::PointCloudHitData>(
-      sbt_name_, raygen_program_.name, miss_program_.name, hitgroup_program_.name, raygen_data_, miss_data_,
-      hit_data_);
+      sbt_name_, raygen_program_.name, miss_program_.name, hitgroup_program_.name, raygen_data_, miss_data_, hit_data_);
 }
 
 template class CoreCastDepthMap<corecast::optix::PointXYZI>;

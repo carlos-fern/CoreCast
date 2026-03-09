@@ -2,12 +2,12 @@
 
 #include <cuda.h>
 #include <cuda_runtime.h>
+#include <optix.h>
+
 #include <memory>
 #include <string>
 #include <type_traits>
 #include <vector>
-
-#include <optix.h>
 
 #include "corecast_optix/corecast_optix.hpp"
 
@@ -15,40 +15,29 @@ namespace corecast::processing {
 
 template <typename PointCloudType>
 class CoreCastDepthMap {
-public:
-  explicit CoreCastDepthMap(corecast::optix::CoreCastOptix& optix);
+ public:
+  explicit CoreCastDepthMap(corecast::optix::CoreCastOptix& optix, std::vector<PointCloudType>& point_cloud,
+                            unsigned int image_width, unsigned int image_height,
+                            const corecast::optix::CameraFrameData& camera_frame_data, float point_radius = 0.01f);
   ~CoreCastDepthMap();
-
-  void setup_depth_map_processing(std::vector<PointCloudType>& point_cloud,
-                                  unsigned int image_width,
-                                  unsigned int image_height,
-                                  float point_radius = 0.01f);
-  void setup_depth_map_processing(std::vector<PointCloudType>& point_cloud,
-                                  unsigned int image_width,
-                                  unsigned int image_height,
-                                  const corecast::optix::CameraFrameData& camera_frame_data,
-                                  float point_radius = 0.01f);
 
   float* launch_depth_map();
   const corecast::optix::PointCloudLaunchParams& get_launch_params() const;
-  void set_camera_frame_data(const corecast::optix::CameraFrameData& camera_frame_data);
-  void update_point_cloud(std::vector<PointCloudType>& point_cloud);
 
-private:
+ private:
   void set_pipeline_compile_options();
   void set_module_compile_options();
   void set_pipeline_link_options();
   void set_builtin_is_options();
   void set_programs();
   void set_pipeline_names();
-  void set_launch_params(unsigned int image_width,
-                         unsigned int image_height,
+  void set_launch_params(unsigned int image_width, unsigned int image_height,
                          const corecast::optix::CameraFrameData& camera_frame_data);
   void set_point_cloud_build_input();
   void set_point_cloud_accel_build_options();
   void create_module_pipeline_and_sbt();
 
-private:
+ private:
   corecast::optix::CoreCastOptix& optix_;
 
   OptixPipelineCompileOptions depth_map_pipeline_compile_options_{};
@@ -68,12 +57,12 @@ private:
   std::string sbt_name_;
 
   corecast::optix::PointCloudLaunchParams point_cloud_launch_params_{};
-  
-  //Host buffers
+
+  // Host buffers
   std::vector<float> depth_host_buffer_;
   std::vector<float3> point_centers_host_;
 
-  //Device buffers
+  // Device buffers
   std::unique_ptr<corecast::optix::CUDABuffer<PointCloudType, PointCloudType>> point_cloud_buffer_;
   std::unique_ptr<corecast::optix::CUDABuffer<float3, float3>> point_centers_buffer_;
   std::unique_ptr<corecast::optix::CUDABuffer<float, float>> depth_buffer_;
