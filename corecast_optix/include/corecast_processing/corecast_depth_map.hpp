@@ -45,7 +45,6 @@ class CoreCastDepthMap {
   OptixPipelineLinkOptions depth_map_pipeline_link_options_{};
   OptixBuiltinISOptions depth_map_builtin_is_options_{};
   OptixAccelBuildOptions point_cloud_accel_build_options_{};
-  OptixModule sphere_is_module_ = nullptr;
 
   corecast::optix::CoreCastProgram raygen_program_{};
   corecast::optix::CoreCastProgram miss_program_{};
@@ -54,6 +53,7 @@ class CoreCastDepthMap {
 
   std::string pipeline_name_;
   std::string module_name_;
+  std::string sphere_is_module_name_;
   std::string sbt_name_;
 
   corecast::optix::PointCloudLaunchParams point_cloud_launch_params_{};

@@ -66,6 +66,7 @@ class CoreCastRos2DepthMap {
     if (point_cloud_.empty()) {
       return;
     }
+
     corecast::optix::CameraFrameData camera_frame_data{};
     fill_camera_frame_data(*msg, camera_frame_data);
 
@@ -83,9 +84,6 @@ class CoreCastRos2DepthMap {
     std::memcpy(depth_msg.data.data(), depth_map_processor_->launch_depth_map(), depth_msg.data.size());
 
     depth_image_publisher_->publish(depth_msg);
-
-    point_cloud_.clear();
-    depth_map_processor_.reset();
   }
 
  private:

@@ -15,6 +15,7 @@ CoreCastDepthMap<PointCloudType>::CoreCastDepthMap(corecast::optix::CoreCastOpti
   static_assert(std::is_same_v<PointCloudType, corecast::optix::PointXYZI>,
                 "CoreCastDepthMap currently expects PointCloudType == corecast::optix::PointXYZI");
 
+  sphere_is_module_name_ = "sphere_is_module";
   if (point_cloud.empty()) {
     throw std::runtime_error("Point cloud cannot be empty");
   }
@@ -53,11 +54,7 @@ CoreCastDepthMap<PointCloudType>::CoreCastDepthMap(corecast::optix::CoreCastOpti
 }
 
 template <typename PointCloudType>
-CoreCastDepthMap<PointCloudType>::~CoreCastDepthMap() {
-  if (sphere_is_module_ != nullptr) {
-    OPTIX_CHECK_NOTHROW(optixModuleDestroy(sphere_is_module_));
-  }
-}
+CoreCastDepthMap<PointCloudType>::~CoreCastDepthMap() = default;
 
 template <typename PointCloudType>
 float* CoreCastDepthMap<PointCloudType>::launch_depth_map() {
@@ -174,11 +171,10 @@ template <typename PointCloudType>
 void CoreCastDepthMap<PointCloudType>::create_module_pipeline_and_sbt() {
   std::string ptx_path = CORECAST_POINTCLOUD_PTX_PATH;
   optix_.create_module(module_name_, depth_map_pipeline_compile_options_, depth_map_module_compile_options_, ptx_path);
+  optix_.create_module(sphere_is_module_name_, depth_map_pipeline_compile_options_, depth_map_module_compile_options_,
+                       depth_map_builtin_is_options_);
 
-  OPTIX_CHECK(optixBuiltinISModuleGet(optix_.get_device_context(), &depth_map_module_compile_options_,
-                                      &depth_map_pipeline_compile_options_, &depth_map_builtin_is_options_,
-                                      &sphere_is_module_));
-  hitgroup_program_.desc.hitgroup.moduleIS = sphere_is_module_;
+  hitgroup_program_.desc.hitgroup.moduleIS = optix_.get_module(sphere_is_module_name_);
 
   optix_.add_program_to_module(module_name_, raygen_program_);
   optix_.add_program_to_module(module_name_, miss_program_);
