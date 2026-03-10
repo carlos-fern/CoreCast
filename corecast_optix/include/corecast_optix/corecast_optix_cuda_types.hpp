@@ -209,6 +209,7 @@ struct CoreSACAABBParams {
   float3 *voxel_points;
   uint32_t max_num_total_voxels;
   uint32_t max_points_per_voxel;
+  uint32_t min_points_per_voxel;
 
   OptixAabb *bounding_boxes;
 };

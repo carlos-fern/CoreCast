@@ -13,6 +13,8 @@ extern "C" __global__ void __raygen__coresac_aabb() {
     const uint32_t voxel_id = params.active_voxel_ids[id];
     if (voxel_id >= params.max_num_total_voxels) {
         return;
+    } else if (params.voxel_point_count[voxel_id] < params.min_points_per_voxel){
+        return;
     }
 
     auto voxel_count = params.voxel_point_count[voxel_id];
