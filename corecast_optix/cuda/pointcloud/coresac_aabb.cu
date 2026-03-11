@@ -33,6 +33,8 @@ extern "C" __global__ void __raygen__coresac_aabb() {
         params.bounding_boxes[id].min.z = fminf(params.bounding_boxes[id].min.z, params.voxel_points[voxel_id * params.max_points_per_voxel + i].z);
         params.bounding_boxes[id].max.x = fmaxf(params.bounding_boxes[id].max.x, params.voxel_points[voxel_id * params.max_points_per_voxel + i].x);
         params.bounding_boxes[id].max.y = fmaxf(params.bounding_boxes[id].max.y, params.voxel_points[voxel_id * params.max_points_per_voxel + i].y);
-        params.bounding_boxes[id].max.z = fmaxf(params.bounding_boxes[id].max.z, params.voxel_points[voxel_id * params.max_points_per_voxel + i].z);   
+        params.bounding_boxes[id].max.z = fmaxf(params.bounding_boxes[id].max.z, params.voxel_points[voxel_id * params.max_points_per_voxel + i].z);
+        
+        params.bouding_box_to_voxel_id[id] = voxel_id;
     }
 }

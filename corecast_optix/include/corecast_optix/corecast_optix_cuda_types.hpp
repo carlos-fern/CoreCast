@@ -214,4 +214,9 @@ struct CoreSACAABBParams {
   OptixAabb *bounding_boxes;
 };
 
+struct CoreSACScoringParams {
+  uint32_t max_num_total_voxels;
+  CoreSACAABBParams aabb_params;
+};
+
 }  // namespace corecast::optix
