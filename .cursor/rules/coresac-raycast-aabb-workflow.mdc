@@ -1,0 +1,21 @@
+---
+description: Preserve CoreSAC ray-cast then AABB consensus workflow
+alwaysApply: true
+---
+
+# CoreSAC Ray-Cast + AABB Workflow
+
+This CoreSAC workflow is the user's original idea for this project.
+
+CoreSAC should be implemented as a three-stage process:
+
+1. Use ray casting to generate a focused set of valid candidate points from the point cloud.
+2. Group candidates and build/update AABBs as bounded working regions.
+3. Score support by projecting rays from random seed points and counting all points that lie within a configured tube/radius around each ray path.
+
+- Do not replace this with purely uniform random sampling across the full cloud unless the user explicitly requests a different approach.
+- Keep ray-generation math consistent with existing depth-map camera/sensor projection logic so candidate selection remains geometry-aware.
+- Treat AABBs as an algorithmic pruning step for ray-support scoring, not as the final decision criterion by themselves.
+- Prefer ray-support counting (radius/tube around ray path) over defaulting to traditional per-voxel RANSAC when selecting inlier support.
+- If changing this workflow, explain the tradeoff (speed, robustness, or coverage) and confirm with the user before altering core behavior.
+- Do not reference or cite similar external methods, papers, or prior art unless the user explicitly asks for that context.
