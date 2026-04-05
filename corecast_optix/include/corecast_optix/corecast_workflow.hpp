@@ -10,7 +10,7 @@ class CoreCastWorkflow {
 
 public: 
 
-    CoreCastWorkflow(std::shared_ptr<CoreCastOptix> optix);
+    CoreCastWorkflow(std::shared_ptr<CoreCastOptix> optix, std::optional<WorkflowOptions> workflow_options);
 
     auto load_data(auto data) -> decltype(static_cast<ActualWorkflow&>(*this).load_data()){
         return static_cast<ActualWorkflow&>(*this).load_data(data);
@@ -27,30 +27,31 @@ public:
 private:
     std::shared_ptr<CoreCastOptix> optix_;
     CoreCastOptixContext context_;
+    CoreCastOptixProgramRegistry program_registry_;
 
     // Step 1: Initialize the context
-    void init_context(CUcontext context_id,OptixDeviceContextOptions& options);
+    void init_context(CoreCastOptixContext& context);
 
     // Step 2:Setup module
-    void setup_module( OptixPipelineCompileOptions& pipeline_compile_options,
-        OptixModuleCompileOptions& module_compile_options, std::string& ptx_path);
+    void setup_module(CoreCastOptixModule& module);
 
-    void setup_builtin_is_module(OptixPipelineCompileOptions& pipeline_compile_options,
-        OptixModuleCompileOptions& module_compile_options, OptixBuiltinISOptions& builtin_is_options);
-        
     // Step 3: Setup programs and program groups
     CoreCastOptixProgramRegistry program_registry_;
     
     // Step 4: Setup pipelines
-    void setup_pipelines()
+    void setup_pipelines(CoreCastOptixPipeline& pipeline);
 
     // Step 5 setup GAS
-    void setup_gas();
+    OptixTraversableHandle setup_gas(CoreCastOptixGAS& gas);
 
     //Step 6 : Setup SBT
-    void setup_sbt();
+    void setup_sbt(CoreCastOptixSBT& sbt);
 
     //Step 7 : setup launch
-    void setup_launch();
+    void setup_launch(CoreCastOptixLaunch& launch);
+
+    concept ContextLogCallbackType = std::function<void(unsigned int level, const char* tag, const char* message, void*)>;
+    // Default log callback for the context
+    void context_log_cb(ContextLogCallbackType log_cb);
 };
 } // namespace corecast::optix

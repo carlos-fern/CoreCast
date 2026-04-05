@@ -158,11 +158,6 @@ target_link_libraries(corecast_optix
 #    corecast_optix
 #)
 
-target_link_libraries(corecast_optix_coresac_progress_example
-  PRIVATE
-    corecast_optix
-)
-
 install(TARGETS corecast_optix
   EXPORT corecast_optixTargets
   ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"

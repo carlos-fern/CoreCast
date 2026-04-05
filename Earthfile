@@ -19,6 +19,7 @@ devcontainer-image:
         software-properties-common \
         git \
         build-essential \
+        clang-format \
         cmake \
         ninja-build \
         python3-pip \

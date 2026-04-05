@@ -1,6 +1,6 @@
 
 struct CoreCastOptixContext {
-    OptixDeviceContext context_ = nullptr;
+    OptixDeviceContext device_context_ = nullptr;
     CUcontext cuCtx_ = 0;
     OptixDeviceContextOptions options_ = {};
 }
@@ -10,6 +10,7 @@ struct CoreCastOptixModule {
     OptixPipelineCompileOptions pipeline_compile_options_;
     OptixModuleCompileOptions module_compile_options_;
     OptixBuiltinISOptions builtin_is_options_;
+    std::optional<std::string> ptx_path_;
 }
 
 struct CoreCastOptixPipeline {
@@ -39,4 +40,14 @@ struct CoreCastSBT {
     std::unique_ptr<RaygenRecordType> raygen_host_record_ptr_;
     std::unique_ptr<MissRecordType> miss_host_record_ptr_;
     std::unique_ptr<HitgroupRecordType> hitgroup_host_record_ptr_;
+}
+
+
+struct WorkflowOptions {
+    OptixDeviceContextOptions context_options_;
+    OptixPipelineCompileOptions pipeline_compile_options_;
+    OptixModuleCompileOptions module_compile_options_;
+    OptixPipelineLinkOptions pipeline_link_options_;
+    OptixBuiltinISOptions builtin_is_options_;
+    OptixAccelBuildOptions accel_build_options_;
 }
