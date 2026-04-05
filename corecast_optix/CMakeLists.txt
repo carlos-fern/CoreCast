@@ -109,13 +109,9 @@ add_custom_command(
 add_custom_target(corecast_optix_ptx DEPENDS "${CORECAST_PTX_FILE}" "${CORECAST_POINTCLOUD_PTX_FILE}")
 
 add_library(corecast_optix
-  src/corecast_optix_context.cpp
+  src/corecast_coresac.cpp
   src/corecast_optix_program_registry.cpp
-  src/corecast_optix_module.cpp
-  src/corecast_optix_utils.cpp
-  src/corecast_optix_pipeline.cpp
-  src/corecast_optix.cpp
-  src/corecast_depth_map.cpp
+  src/corecast_workflow.cpp
 )
 add_library(corecast_optix::corecast_optix ALIAS corecast_optix)
 add_dependencies(corecast_optix corecast_optix_ptx)
