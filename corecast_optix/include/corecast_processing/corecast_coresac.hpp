@@ -1,4 +1,4 @@
-#include <corecast_optix/corecast_workflow.hpp>
+import workflow
 #include <corecast_optix/corecast_optix_types.hpp>
 
 namespace corecast::processing {

@@ -1,9 +1,12 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.28)
+set(CMAKE_CXX_COMPILER "g++-14")
 project(corecast_optix VERSION 0.1.0 LANGUAGES CXX)
+
 
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 20)
 endif()
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # --- OptiX SDK Setup ---
 set(DEFAULT_OPTIX_SDK_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/NVIDIA-OptiX-SDK-9.0.0-linux64-x86_64")
@@ -64,12 +67,23 @@ message(STATUS "Using cuda/std include root: ${CORECAST_CUDA_STD_INCLUDE_DIR}")
 # add_custom_target(corecast_optix_ptx DEPENDS "${CORECAST_POINTCLOUD_PTX_FILE}")
 
 # --- Core Library ---
-add_library(corecast_optix
-  src/corecast_optix.cpp
-  src/corecast_coresac.cpp
-  src/corecast_optix_program_registry.cpp
-  src/corecast_workflow.cpp
+# 1. Define the library target (can be empty initially)
+add_library(corecast_optix)
+
+# 2. Add regular source files and modules
+target_sources(corecast_optix
+    PRIVATE
+        src/corecast_optix.cpp
+        src/corecast_optix_program_registry.cpp
+        src/corecast_optix_utils.cpp
+    
+    # 3. This is the magic part for your C++20 modules
+    PUBLIC
+        FILE_SET CXX_MODULES
+            BASE_DIRS include
+            FILES include/modules/workflow.cppm
 )
+
 add_library(corecast_optix::corecast_optix ALIAS corecast_optix)
 # add_dependencies(corecast_optix corecast_optix_ptx)
 
@@ -108,6 +122,7 @@ install(TARGETS corecast_optix
   ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+  FILE_SET CXX_MODULES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/corecast_optix/modules"
 )
 
 install(DIRECTORY include/
