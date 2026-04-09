@@ -1,4 +1,5 @@
 #include "corecast_optix/corecast_optix_program_registry.hpp"
+#include <corecast_optix/corecast_optix_types.hpp>
 
 #include <optix_stubs.h>
 
@@ -23,16 +24,16 @@ void CoreCastOptixProgramRegistry::register_program(const CoreCastProgram& progr
   OptixProgramGroupDesc& description = program_descriptions_[program.name].desc;
 
   if (description.kind == OPTIX_PROGRAM_GROUP_KIND_RAYGEN) {
-    description.raygen.module = module.get_module();
+    description.raygen.module = module.module_  ;
   } else if (description.kind == OPTIX_PROGRAM_GROUP_KIND_MISS) {
-    description.miss.module = module.get_module();
+    description.miss.module = module.module_;
   } else if (description.kind == OPTIX_PROGRAM_GROUP_KIND_HITGROUP) {
-    description.hitgroup.moduleCH = module.get_module();
+    description.hitgroup.moduleCH = module.module_;
   } else {
     throw std::runtime_error("Invalid program group kind");
   }
 
-  OPTIX_CHECK_LOG(optixProgramGroupCreate(context_->get_context(), &program_descriptions_[program.name].desc, 1,
+  OPTIX_CHECK_LOG(optixProgramGroupCreate(context_->device_context_, &program_descriptions_[program.name].desc, 1,
                                           &program_descriptions_[program.name].options, LOG, &LOG_SIZE,
                                           &program_groups_[program.name]));
 }

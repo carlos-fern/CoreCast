@@ -8,8 +8,11 @@
 #include <unordered_map>
 #include <vector>
 
-#include "corecast_optix/corecast_optix_context.hpp"
-#include "corecast_optix/corecast_optix_module.hpp"
+//Forward declaration
+namespace corecast::optix {
+    struct CoreCastOptixContext;
+    struct CoreCastOptixModule;
+  }
 
 namespace corecast::optix {
 struct CoreCastProgram {

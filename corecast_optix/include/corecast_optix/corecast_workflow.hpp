@@ -1,9 +1,17 @@
 #pragma once
 
 #include <type_traits>
-#include <corecast_optix_v2/corecast_optix_types.hpp>
+#include <corecast_optix/corecast_optix_types.hpp>
+#include <functional>
+#include <concepts>
 
 namespace corecast::optix {
+
+//Forward declaration
+class CoreCastOptix;
+
+template <typename T>
+concept ContextLogCallbackType = std::invocable<T, unsigned int, const char*, const char*, void*>;
 
 template <typename ActualWorkflow>
 class CoreCastWorkflow {
@@ -12,19 +20,19 @@ public:
 
     CoreCastWorkflow(std::shared_ptr<CoreCastOptix> optix, std::optional<WorkflowOptions> workflow_options);
 
-    auto load_data(auto data) -> decltype(static_cast<ActualWorkflow&>(*this).load_data()){
+    auto load_data(auto data) {
         return static_cast<ActualWorkflow&>(*this).load_data(data);
     }
 
-    auto process() -> decltype(static_cast<ActualWorkflow&>(*this).process()){
-        return static_cast<ActualWorkflow&>(*this).process();
+    void process() {
+        static_cast<ActualWorkflow&>(*this).process();
     }
 
-    auto get_result() -> decltype(static_cast<ActualWorkflow&>(*this).get_result()){
+    auto get_result() {
         return static_cast<ActualWorkflow&>(*this).get_result();
     }
 
-private:
+protected:
     std::shared_ptr<CoreCastOptix> optix_;
     CoreCastOptixContext context_;
     CoreCastOptixProgramRegistry program_registry_;
@@ -34,9 +42,6 @@ private:
 
     // Step 2:Setup module
     void setup_module(CoreCastOptixModule& module);
-
-    // Step 3: Setup programs and program groups
-    CoreCastOptixProgramRegistry program_registry_;
     
     // Step 4: Setup pipelines
     void setup_pipelines(CoreCastOptixPipeline& pipeline);
@@ -45,13 +50,13 @@ private:
     OptixTraversableHandle setup_gas(CoreCastOptixGAS& gas);
 
     //Step 6 : Setup SBT
-    void setup_sbt(CoreCastOptixSBT& sbt);
+    template<typename RecordType, typename DataType>
+    void setup_sbt(CoreCastOptixSBT<RecordType, DataType>& sbt);
 
     //Step 7 : setup launch
     void setup_launch(CoreCastOptixLaunch& launch);
 
-    concept ContextLogCallbackType = std::function<void(unsigned int level, const char* tag, const char* message, void*)>;
     // Default log callback for the context
-    void context_log_cb(ContextLogCallbackType log_cb);
+    void context_log_cb(ContextLogCallbackType auto log_cb);
 };
 } // namespace corecast::optix

@@ -1,5 +1,5 @@
-#include <corecast_optix_v2/corecast_workflow.hpp>
-
+#include <corecast_optix/corecast_workflow.hpp>
+#include <corecast_optix/corecast_optix.hpp>
 
 namespace corecast::optix {
 
@@ -164,3 +164,5 @@ void CoreCastWorkflow::setup_launch(CoreCastOptixLaunch& launch) {
 void CoreCastWorkflow::context_log_cb(unsigned int level, const char* tag, const char* message, void* /*cbdata*/) {
     std::cerr << "[" << std::setw(2) << level << "][" << std::setw(12) << tag << "]: " << message << "\n";
   }
+
+} // namespace corecast::optix

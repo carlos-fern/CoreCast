@@ -1,37 +1,28 @@
 #include <memory>
-#include <corecast_optix_types.hpp>
+#include <unordered_map>
+#include <any>
+
+#include <corecast_optix/corecast_optix_types.hpp>
+#include <corecast_optix/corecast_workflow.hpp>
 
 namespace corecast::optix {
+
 
 class CoreCastOptix : public std::enable_shared_from_this<CoreCastOptix> {
  public:
 
     CoreCastOptix(auto settings);
 
-    std::shared_ptr<CoreCastWorkflow> create_coresac_pipeline(std::string &workflow_name, workflow_options &workflow_options){
+    ~CoreCastOptix();
 
-        auto workflow = make_shared<WorkflowType>(shared_from_this(), workflow_options);
-        workflows_[workflow_name] = workflow;
-        return workflow;
-    }
+    std::shared_ptr<std::any> create_coresac_pipeline(std::string &workflow_name, WorkflowOptions &workflow_options);
 
-    std::shared_ptr<CoreCastWorkflow> get_workflow(std::string &workflow_name){
-        return workflows_[workflow_name];
-    }
+    std::shared_ptr<std::any> get_workflow(std::string &workflow_name);
 
-    void destroy_workflow(std::string &workflow_name){
-        workflows_.erase(workflow_name);
-    }
-
+    void destroy_workflow(std::string &workflow_name);
 
     private:
-    unordered_map<std::string, WorkflowType> workflows_;
-
-
-    template <typename WorkflowType>
-    auto create_pipeline() -> decltype(WorkflowType){
-        return WorkflowType(shared_from_this());
-    }
+    //std::unordered_map<std::string, ActualWorkflow> workflows_;
 };
 
 } // namespace corecast::optix
