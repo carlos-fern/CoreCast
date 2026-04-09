@@ -1,9 +1,4 @@
----
-description: Avoid loading full thirdparty folder into context
-alwaysApply: true
----
-
-# Avoid Whole Thirdparty Context
+# Instruction: Avoid Whole Thirdparty Context
 
 - Do not load the entire `thirdparty` folder into model context.
 - Treat `thirdparty` as a reference-only area: use targeted searches (`rg`) and specific file reads only when needed.

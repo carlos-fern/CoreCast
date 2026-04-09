@@ -1,9 +1,4 @@
----
-description: Preserve CoreSAC ray-cast then AABB consensus workflow
-alwaysApply: true
----
-
-# CoreSAC Ray-Cast + AABB Workflow
+# Instruction: CoreSAC Ray-Cast + AABB Workflow
 
 This CoreSAC workflow is the user's original idea for this project.
 

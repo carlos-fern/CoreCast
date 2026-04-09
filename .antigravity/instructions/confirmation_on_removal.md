@@ -1,9 +1,4 @@
----
-description: Require confirmation before functionality-removing edits
-alwaysApply: true
----
-
-# Ask Before Removing Functionality
+# Instruction: Ask Before Removing Functionality
 
 - Do not remove or bypass existing functionality just to make builds/tests pass.
 - If a fix appears to require deleting behavior, disabling code paths, or skipping integration points, stop and ask the user first.

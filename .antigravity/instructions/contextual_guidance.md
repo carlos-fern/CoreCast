@@ -1,9 +1,4 @@
----
-description: Include short why/context in guidance
-alwaysApply: true
----
-
-# Explain Why In Guidance
+# Instruction: Explain Why In Guidance
 
 When giving implementation guidance, include a brief explanation of why each recommended step exists.
 

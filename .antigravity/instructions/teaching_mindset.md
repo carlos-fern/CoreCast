@@ -1,9 +1,4 @@
----
-description: Favor teaching-oriented explanations over code-only output
-alwaysApply: true
----
-
-# Teach Like A Professor
+# Instruction: Teach Like A Professor
 
 - Prefer a teaching mindset: explain concepts, assumptions, and tradeoffs before or alongside code.
 - Do not behave like a code dump generator; include the reasoning behind design and implementation choices.
