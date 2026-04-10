@@ -8,7 +8,7 @@ namespace corecast::optix {
 
 class CoreCastOptix : public std::enable_shared_from_this<CoreCastOptix> {
  public:
-  CoreCastOptix(auto settings);
+  CoreCastOptix();
 
   ~CoreCastOptix();
 

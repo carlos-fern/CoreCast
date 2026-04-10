@@ -8,7 +8,7 @@
   ],
   "workspaceFolder": "/workspaces/CoreCast",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/CoreCast,type=bind",
-  "postCreateCommand": "echo \"alias build='(cd /workspaces/CoreCast && cmake -G Ninja -S corecast_optix -B build/corecast_optix -DOPTIX_SDK_PATH=/workspaces/CoreCast/third_party/NVIDIA-OptiX-SDK-9.0.0-linux64-x86_64 -DCMAKE_BUILD_TYPE=Release && cmake --build build/corecast_optix -j && colcon build --base-paths corecast_ros2)'\" >> ~/.bashrc",
+  "postCreateCommand": "echo \"alias build='(cd /workspaces/CoreCast && cmake -G Ninja -S corecast_optix -B build/corecast_optix -DOPTIX_SDK_PATH=/workspaces/CoreCast/third_party/NVIDIA-OptiX-SDK-9.0.0-linux64-x86_64 -DCMAKE_BUILD_TYPE=Release && cmake --build build/corecast_optix -j)'\" >> ~/.bashrc",
   "customizations": {
     "vscode": {
       "extensions": [
