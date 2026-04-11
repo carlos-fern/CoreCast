@@ -21,17 +21,17 @@ export namespace corecast::optix {
 template <typename T>
 concept ContextLogCallbackType = std::invocable<T, unsigned int, const char*, const char*, void*>;
 
-template <typename ActualWorkflow>
-class Workflow {
+template <typename SpecificWorkflow>
+class BaseWorkflow {
  public:
-  Workflow(std::shared_ptr<CoreCastOptix> optix, std::optional<WorkflowOptions> workflow_options);
-  ~Workflow();
+  BaseWorkflow(std::shared_ptr<CoreCastOptix> optix, std::optional<WorkflowOptions> workflow_options);
+  ~BaseWorkflow();
 
-  auto load_data(auto data) { return static_cast<ActualWorkflow&>(*this).load_data(data); }
+  auto load_data(auto data) { return static_cast<SpecificWorkflow&>(*this).load_data(data); }
 
-  void process() { static_cast<ActualWorkflow&>(*this).process(); }
+  void process() { static_cast<SpecificWorkflow&>(*this).process(); }
 
-  auto get_result() { return static_cast<ActualWorkflow&>(*this).get_result(); }
+  auto get_result() { return static_cast<SpecificWorkflow&>(*this).get_result(); }
 
  protected:
   std::shared_ptr<CoreCastOptix> optix_;

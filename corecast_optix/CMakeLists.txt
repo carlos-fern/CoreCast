@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.28)
 set(CMAKE_CXX_COMPILER "g++-14")
 project(corecast_optix VERSION 0.1.0 LANGUAGES CXX)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+
 
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 20)
