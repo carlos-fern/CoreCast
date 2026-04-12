@@ -14,11 +14,6 @@ module;
 
 export module workflow;
 
-// Forward declaration
-namespace corecast::optix {
-class CoreCastOptix;
-}
-
 export namespace corecast::optix {
 
 template <typename T>
@@ -27,8 +22,9 @@ concept ContextLogCallbackType = std::invocable<T, unsigned int, const char*, co
 template <typename SpecificWorkflow>
 class BaseWorkflow {
  public:
-  BaseWorkflow(std::shared_ptr<CoreCastOptix> optix, std::optional<WorkflowOptions> workflow_options);
-  ~BaseWorkflow();
+  BaseWorkflow(std::shared_ptr<corecast::optix::CoreCastOptix> optix, std::optional<WorkflowOptions> workflow_options)
+      : program_registry_(std::make_shared<CoreCastOptixContext>(context_)) {};
+  ~BaseWorkflow() {};
 
   auto load_data(auto data) { return static_cast<SpecificWorkflow&>(*this).load_data(data); }
 
@@ -36,12 +32,14 @@ class BaseWorkflow {
 
   auto get_result() { return static_cast<SpecificWorkflow&>(*this).get_result(); }
 
+  void register_result_cb();
+
  protected:
-  std::shared_ptr<CoreCastOptix> optix_;
+  std::shared_ptr<corecast::optix::CoreCastOptix> optix_;
   CoreCastOptixContext context_;
   CoreCastOptixProgramRegistry program_registry_;
   std::vector<std::string> program_names_;
-  std::unordered_map<std::string, corecast::optix::CoreCastOptixTraceSBT> sbt_map_;
+  // std::unordered_map<std::string, CoreCastOptixTraceSBT> sbt_map_; //known gcc bug
 
   // Step 1: Initialize the context
 
@@ -117,8 +115,8 @@ class BaseWorkflow {
   void create_sbt(std::string program_name, SbtRecordType auto& raygen_record, SbtRecordType auto& miss_record,
                   SbtRecordType auto& hitgroup_record) {
     auto derived = static_cast<SpecificWorkflow&>(*this);
-    sbt_map_[program_name] =
-        CoreCastOptixTraceSBT(program_name, program_registry_, raygen_record, miss_record, hitgroup_record);
+    // sbt_map_[program_name] =
+    //   CoreCastOptixTraceSBT(program_name, program_registry_, raygen_record, miss_record, hitgroup_record);
   }
 
   // Step 7 : setup launch

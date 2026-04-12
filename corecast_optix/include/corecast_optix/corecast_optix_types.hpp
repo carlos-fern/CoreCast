@@ -13,6 +13,8 @@
 
 namespace corecast::optix {
 
+class CoreCastOptix;
+
 template <typename T>
 concept SbtRecordType =
     // 1. Check that the members actually exist

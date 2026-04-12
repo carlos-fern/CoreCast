@@ -85,6 +85,7 @@ target_sources(corecast_optix
         FILE_SET CXX_MODULES
             BASE_DIRS include
             FILES include/modules/workflow.cppm
+            include/modules/coresac_workflow.cppm
 )
 
 add_library(corecast_optix::corecast_optix ALIAS corecast_optix)
