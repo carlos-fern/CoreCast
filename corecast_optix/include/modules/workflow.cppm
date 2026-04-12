@@ -8,6 +8,9 @@ module;
 #include <corecast_optix/corecast_optix_utils.hpp>
 #include <memory>
 #include <optional>
+#include <unordered_map>
+
+#include "corecast_optix/corecast_optix_cuda_buffer.hpp"
 
 export module workflow;
 
@@ -38,6 +41,7 @@ class BaseWorkflow {
   CoreCastOptixContext context_;
   CoreCastOptixProgramRegistry program_registry_;
   std::vector<std::string> program_names_;
+  std::unordered_map<std::string, corecast::optix::CoreCastOptixTraceSBT> sbt_map_;
 
   // Step 1: Initialize the context
 
@@ -60,16 +64,16 @@ class BaseWorkflow {
 
   // Step 2:Setup module
   void setup_module(CoreCastOptixModule& module) {
-    char LOG[2048];
-    size_t LOG_SIZE = sizeof(LOG);
-
     if (module.ptx_path_.has_value()) {  // Custom module
+      std::puts("Loading custom module");
       std::vector<char> ptx = read_file_bytes(module.ptx_path_.value());
 
       OPTIX_CHECK_LOG(optixModuleCreate(context_.device_context_, &module.module_compile_options_,
                                         &module.pipeline_compile_options_, ptx.data(), ptx.size(), LOG, &LOG_SIZE,
                                         &module.module_));
+
     } else {  // Builtin module
+      std::puts("Loading builtin module");
       OPTIX_CHECK_LOG(optixBuiltinISModuleGet(context_.device_context_, &module.module_compile_options_,
                                               &module.pipeline_compile_options_, &module.builtin_is_options_,
                                               &module.module_));
@@ -78,10 +82,7 @@ class BaseWorkflow {
 
   // Step 4: Setup pipelines
   void setup_pipelines(CoreCastOptixPipeline& pipeline) {
-    char LOG[2048];
-    size_t LOG_SIZE = sizeof(LOG);
-
-    auto derived = static_cast<ActualWorkflow&>(*this);
+    auto derived = static_cast<SpecificWorkflow&>(*this);
     // Assuming program_names and pipeline_ are members or accessible via ActualWorkflow
     std::vector<OptixProgramGroup> groups = program_registry_.get_program_groups(derived.program_names_);
 
@@ -112,48 +113,17 @@ class BaseWorkflow {
   }
 
   // Step 6 : Setup SBT
-  template <typename RecordType, typename DataType>
-  void setup_sbt(CoreCastOptixSBT<RecordType, DataType>& sbt) {
-    sbt.raygen_host_record_ptr_ = std::make_unique<RecordType>();
-    sbt.miss_host_record_ptr_ = std::make_unique<RecordType>();
-    sbt.hitgroup_host_record_ptr_ = std::make_unique<RecordType>();
 
-    // sbt.raygen_host_record_ptr_->data = raygen_data;
-    // sbt.miss_host_record_ptr_->data = miss_data;
-    // sbt.hitgroup_host_record_ptr_->data = hitgroup_data;
-    /*
-    OPTIX_CHECK(optixSbtRecordPackHeader(program_registry_.get_program_group(raygen_program_name),
-                                         sbt.raygen_host_record_ptr_.get()));
-    OPTIX_CHECK(optixSbtRecordPackHeader(program_registry_.get_program_group(miss_program_name),
-                                         sbt.miss_host_record_ptr_.get()));
-    OPTIX_CHECK(optixSbtRecordPackHeader(program_registry_.get_program_group(hitgroup_program_name),
-                                         sbt.hitgroup_host_record_ptr_.get()));
-
-    CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&sbt.raygen_device_ptr_), sizeof(RecordType)));
-    CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&sbt.miss_device_ptr_), sizeof(RecordType)));
-    CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&sbt.hitgroup_device_ptr_), sizeof(RecordType)));
-
-    CUDA_CHECK(cudaMemcpy(reinterpret_cast<void*>(sbt.raygen_device_ptr_), sbt.raygen_host_record_ptr_.get(),
-                          sizeof(RecordType), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(reinterpret_cast<void*>(sbt.miss_device_ptr_), sbt.miss_host_record_ptr_.get(),
-                          sizeof(RecordType), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(reinterpret_cast<void*>(sbt.hitgroup_device_ptr_), sbt.hitgroup_host_record_ptr_.get(),
-                          sizeof(RecordType), cudaMemcpyHostToDevice));
-
-    sbt.sbt_.raygenRecord = sbt.raygen_device_ptr_;
-    sbt.sbt_.missRecordBase = sbt.miss_device_ptr_;
-    sbt.sbt_.missRecordStrideInBytes = static_cast<unsigned int>(sizeof(RecordType));
-    sbt.sbt_.missRecordCount = 1;
-    sbt.sbt_.hitgroupRecordBase = sbt.hitgroup_device_ptr_;
-    sbt.sbt_.hitgroupRecordStrideInBytes = static_cast<unsigned int>(sizeof(RecordType));
-    sbt.sbt_.hitgroupRecordCount = 1;
-
-    */
+  void create_sbt(std::string program_name, SbtRecordType auto& raygen_record, SbtRecordType auto& miss_record,
+                  SbtRecordType auto& hitgroup_record) {
+    auto derived = static_cast<SpecificWorkflow&>(*this);
+    sbt_map_[program_name] =
+        CoreCastOptixTraceSBT(program_name, program_registry_, raygen_record, miss_record, hitgroup_record);
   }
 
   // Step 7 : setup launch
   void setup_launch(CoreCastOptixLaunch& launch) {
-    auto derived = static_cast<ActualWorkflow&>(*this);
+    auto derived = static_cast<SpecificWorkflow&>(*this);
     /*
     const void* launch_param_ptr = static_cast<const void*>(&derived.launch_params_.params_);
     const size_t launch_param_size = sizeof(ParamsType);
