@@ -34,15 +34,8 @@ class BaseWorkflow {
 
   void register_result_cb();
 
- protected:
-  std::shared_ptr<corecast::optix::CoreCastOptix> optix_;
-  CoreCastOptixContext context_;
-  CoreCastOptixProgramRegistry program_registry_;
-  std::vector<std::string> program_names_;
-  // std::unordered_map<std::string, CoreCastOptixTraceSBT> sbt_map_; //known gcc bug
-
+ private:
   // Step 1: Initialize the context
-
   void init_context(CoreCastOptixContext& context) {
     check_cuda(cudaFree(0), "cudaFree(0)");
     context_ = context;
@@ -59,6 +52,13 @@ class BaseWorkflow {
     check_optix(optixDeviceContextCreate(context_.cuCtx_, &context_.options_, &context_.device_context_),
                 "optixDeviceContextCreate()");
   }
+
+ protected:
+  std::shared_ptr<corecast::optix::CoreCastOptix> optix_;
+  CoreCastOptixContext context_;
+  CoreCastOptixProgramRegistry program_registry_;
+  std::vector<std::string> program_names_;
+  // std::unordered_map<std::string, CoreCastOptixTraceSBT> sbt_map_; //known gcc bug
 
   // Step 2:Setup module
   void setup_module(CoreCastOptixModule& module) {
