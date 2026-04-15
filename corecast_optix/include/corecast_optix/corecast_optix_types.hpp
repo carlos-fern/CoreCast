@@ -143,6 +143,7 @@ struct CoreCastOptixModule {
 
 struct CoreCastOptixPipeline {
   OptixPipelineLinkOptions link_options_;
+  OptixPipelineCompileOptions compile_options_;
   std::vector<std::string> program_names_;
   OptixPipeline pipeline_;
 };

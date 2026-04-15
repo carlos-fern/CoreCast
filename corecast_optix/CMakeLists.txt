@@ -86,6 +86,7 @@ target_sources(corecast_optix
             BASE_DIRS include
             FILES include/modules/workflow.cppm
             include/modules/coresac_workflow.cppm
+            include/modules/hello_workflow.cppm
 )
 
 add_library(corecast_optix::corecast_optix ALIAS corecast_optix)
@@ -116,6 +117,15 @@ add_executable(coresac_example
 )
 
 target_link_libraries(coresac_example
+  PRIVATE
+    corecast_optix
+)
+
+add_executable(hello_workflow_example
+  examples/hello_workflow_example.cpp
+)
+
+target_link_libraries(hello_workflow_example
   PRIVATE
     corecast_optix
 )

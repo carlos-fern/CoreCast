@@ -78,12 +78,19 @@ struct CoreSACScoringParams {
   CoreSACAABBParams aabb_params;
 };
 
-class CoreSACWorkflow : private BaseWorkflow<CoreSACWorkflow> {
+class CoreSACWorkflow : public BaseWorkflow<CoreSACWorkflow> {
  public:
   CoreSACWorkflow(std::shared_ptr<CoreCastOptix> optix, std::optional<WorkflowOptions> workflow_options)
       : BaseWorkflow(optix, workflow_options) {
-    setup_module(module_);
-  };
+          // setup_module(module_);
+        };
+
+  void define_modules() {};
+  void define_programs() {};
+  void define_pipelines() {};
+  void define_gases() {};
+  void define_sbts() {};
+  void define_launches() {};
 
  private:
   CoreCastOptixModule module_;
