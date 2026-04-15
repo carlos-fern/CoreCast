@@ -19,6 +19,17 @@ export namespace corecast::optix {
 template <typename T>
 concept ContextLogCallbackType = std::invocable<T, unsigned int, const char*, const char*, void*>;
 
+// Ensures that the CRTP derived class implements all required configuration hooks.
+template <typename T>
+concept ImplementsWorkflowHooks = requires(T t) {
+  { t.define_modules() } -> std::same_as<void>;
+  { t.define_programs() } -> std::same_as<void>;
+  { t.define_pipelines() } -> std::same_as<void>;
+  { t.define_gases() } -> std::same_as<void>;
+  { t.define_sbts() } -> std::same_as<void>;
+  { t.define_launches() } -> std::same_as<void>;
+};
+
 template <typename SpecificWorkflow>
 class BaseWorkflow {
  public:
@@ -37,6 +48,13 @@ class BaseWorkflow {
   void register_result_cb();
 
   void build_workflow() {
+    // We static_assert inside a method so the derived class is fully defined
+    // by the time the compiler evaluates the concept constraint.
+    static_assert(ImplementsWorkflowHooks<SpecificWorkflow>, 
+        "\nCRTP Error: Your Workflow class is missing one or more required hooks. "
+        "You must implement: define_modules(), define_programs(), define_pipelines(), "
+        "define_gases(), define_sbts(), and define_launches(). (They can be empty lists).");
+
     init_context();
     setup_modules();
     setup_programs();
