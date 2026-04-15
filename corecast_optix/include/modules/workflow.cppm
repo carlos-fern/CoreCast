@@ -23,7 +23,9 @@ template <typename SpecificWorkflow>
 class BaseWorkflow {
  public:
   BaseWorkflow(std::shared_ptr<corecast::optix::CoreCastOptix> optix, std::optional<WorkflowOptions> workflow_options)
-      : program_registry_(std::make_shared<CoreCastOptixContext>(context_)) {};
+      : program_registry_(std::make_shared<CoreCastOptixProgramRegistry>(context_)) {
+    init_context();
+  };
   ~BaseWorkflow() {};
 
   auto load_data(auto data) { return static_cast<SpecificWorkflow&>(*this).load_data(data); }
@@ -36,27 +38,26 @@ class BaseWorkflow {
 
  private:
   // Step 1: Initialize the context
-  void init_context(CoreCastOptixContext& context) {
+  void init_context() {
     check_cuda(cudaFree(0), "cudaFree(0)");
-    context_ = context;
+    context_ = std::make_shared<CoreCastOptixContext>();
 
-    if (context_.options_.logCallbackFunction == nullptr) {
+    if (context_->options_.logCallbackFunction == nullptr) {
       std::puts("Setting log callback function to default");
       // Note: context_log_cb signature has changed, alignment required here
     }
 
     std::puts("Initializing OptiX");
     check_optix(optixInit(), "optixInit()");
-
     std::puts("Creating OptiX device context");
-    check_optix(optixDeviceContextCreate(context_.cuCtx_, &context_.options_, &context_.device_context_),
+    check_optix(optixDeviceContextCreate(context_->cuCtx_, &context_->options_, &context_->device_context_),
                 "optixDeviceContextCreate()");
   }
 
  protected:
   std::shared_ptr<corecast::optix::CoreCastOptix> optix_;
-  CoreCastOptixContext context_;
-  CoreCastOptixProgramRegistry program_registry_;
+  std::shared_ptr<CoreCastOptixContext> context_;
+  std::shared_ptr<CoreCastOptixProgramRegistry> program_registry_;
   std::vector<std::string> program_names_;
   // std::unordered_map<std::string, CoreCastOptixTraceSBT> sbt_map_; //known gcc bug
 
@@ -66,13 +67,13 @@ class BaseWorkflow {
       std::puts("Loading custom module");
       std::vector<char> ptx = read_file_bytes(module.ptx_path_.value());
 
-      OPTIX_CHECK_LOG(optixModuleCreate(context_.device_context_, &module.module_compile_options_,
+      OPTIX_CHECK_LOG(optixModuleCreate(context_->device_context_, &module.module_compile_options_,
                                         &module.pipeline_compile_options_, ptx.data(), ptx.size(), LOG, &LOG_SIZE,
                                         &module.module_));
 
     } else {  // Builtin module
       std::puts("Loading builtin module");
-      OPTIX_CHECK_LOG(optixBuiltinISModuleGet(context_.device_context_, &module.module_compile_options_,
+      OPTIX_CHECK_LOG(optixBuiltinISModuleGet(context_->device_context_, &module.module_compile_options_,
                                               &module.pipeline_compile_options_, &module.builtin_is_options_,
                                               &module.module_));
     }
@@ -82,10 +83,10 @@ class BaseWorkflow {
   void setup_pipelines(CoreCastOptixPipeline& pipeline) {
     auto derived = static_cast<SpecificWorkflow&>(*this);
     // Assuming program_names and pipeline_ are members or accessible via ActualWorkflow
-    std::vector<OptixProgramGroup> groups = program_registry_.get_program_groups(derived.program_names_);
+    std::vector<OptixProgramGroup> groups = program_registry_->get_program_groups(derived.program_names_);
 
     OPTIX_CHECK_LOG(optixPipelineCreate(
-        context_.device_context_, &derived.module_.pipeline_compile_options_, &derived.pipeline_link_options_,
+        context_->device_context_, &derived.module_.pipeline_compile_options_, &derived.pipeline_link_options_,
         groups.data(), static_cast<uint32_t>(groups.size()), LOG, &LOG_SIZE, &derived.pipeline_.pipeline_));
   }
 
@@ -93,12 +94,12 @@ class BaseWorkflow {
   OptixTraversableHandle setup_gas(CoreCastOptixGAS& gas) {
     assert(gas.build_inputs_.empty());
 
-    OPTIX_CHECK(optixAccelComputeMemoryUsage(context_.device_context_, &gas.build_options_, gas.build_inputs_.data(),
+    OPTIX_CHECK(optixAccelComputeMemoryUsage(context_->device_context_, &gas.build_options_, gas.build_inputs_.data(),
                                              static_cast<unsigned int>(gas.build_inputs_.size()), &gas.buffer_sizes_));
 
     CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&gas.output_buffer_), gas.buffer_sizes_.outputSizeInBytes));
     CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&gas.temp_buffer_), gas.buffer_sizes_.tempSizeInBytes));
-    OptixResult result = optixAccelBuild(context_.device_context_, gas.stream_, &gas.build_options_,
+    OptixResult result = optixAccelBuild(context_->device_context_, gas.stream_, &gas.build_options_,
                                          gas.build_inputs_.data(), static_cast<unsigned int>(gas.build_inputs_.size()),
                                          gas.temp_buffer_, gas.buffer_sizes_.tempSizeInBytes, gas.output_buffer_,
                                          gas.buffer_sizes_.outputSizeInBytes, &gas.output_handle_, nullptr, 0);

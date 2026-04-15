@@ -1,6 +1,8 @@
 #include <optix_function_table_definition.h>
 
 #include <corecast_optix/corecast_optix.hpp>
+#include <corecast_optix/corecast_optix_program_registry.hpp>  // needed becusae of gcc 14 bug with modules
+#include <memory>                                              // needed because of gcc 14 bug with modules
 
 namespace corecast::optix {
 

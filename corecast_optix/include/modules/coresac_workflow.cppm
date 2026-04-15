@@ -81,7 +81,9 @@ struct CoreSACScoringParams {
 class CoreSACWorkflow : private BaseWorkflow<CoreSACWorkflow> {
  public:
   CoreSACWorkflow(std::shared_ptr<CoreCastOptix> optix, std::optional<WorkflowOptions> workflow_options)
-      : BaseWorkflow(optix, workflow_options) {};
+      : BaseWorkflow(optix, workflow_options) {
+    setup_module(module_);
+  };
 
  private:
   CoreCastOptixModule module_;
