@@ -85,24 +85,15 @@ class HelloWorkflow : public BaseWorkflow<HelloWorkflow> {
   //
   // optixHello lines 279-300: stream create → cudaMalloc params →
   //   cudaMemcpy → optixLaunch → sync → cudaFree.
-  //
-  // TODO (workflow.cppm BUG – setup_launch() body is fully commented out):
-  //   All of this logic belongs in BaseWorkflow::setup_launch(), but it is
-  //   commented out because it references an un-templated ParamsType.
-  //   Fix needed: template setup_launch<ParamsType>(launch_, params) so the
-  //   derived class can pass its own params struct and the base handles
-  //   cudaMalloc / cudaMemcpy / optixLaunch / sync.
-  //
-  // When fixed, process() would look like:
-  //   HelloParams params{};
-  //   params.image        = /* output buffer device ptr, managed by base */;
-  //   params.image_width  = image_width_;
-  //   params.image_height = image_height_;
-  //   setup_launch(launch_, params);
   // -------------------------------------------------------------------------
   void process() {
-    // No-op until setup_launch() is fixed in workflow.cppm.
-    std::puts("HelloWorkflow::process() called — setup_launch() not yet implemented in BaseWorkflow");
+    HelloParams params{};
+    // params.image = ... // managed output buffer
+    params.image_width = 512;
+    params.image_height = 512;
+
+    // Launch pipeline via the base class wrapper
+    execute_launch<HelloParams>("pipeline", "pipeline", "pipeline", params, params.image_width, params.image_height);
   }
 
   // -------------------------------------------------------------------------

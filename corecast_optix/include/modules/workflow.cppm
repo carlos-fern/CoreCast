@@ -173,30 +173,36 @@ class BaseWorkflow {
     derived.define_sbts();
   }
 
-  // Step 7 : setup launch
+  std::unordered_map<std::string, CoreCastOptixLaunch> launches_;
+
+  void add_launch(const std::string& name, const CoreCastOptixLaunch& launch) {
+    launches_.emplace(name, launch);
+  }
+
+  // Step 7: Allocate launch buffers (called by build_workflow)
   void setup_launches() {
     auto derived = static_cast<SpecificWorkflow&>(*this);
-    /*
-    const void* launch_param_ptr = static_cast<const void*>(&derived.launch_params_.params_);
+    derived.define_launches();
+  }
+
+  // Execution Step: Actually launch a specific pipeline (called by derived process())
+  template <typename ParamsType>
+  void execute_launch(const std::string& launch_name, const std::string& pipeline_name, const std::string& sbt_name, const ParamsType& host_params, unsigned int width, unsigned int height, unsigned int depth = 1) {
+    
+    // Default to stream 0 if launch object wasn't specifically defined
+    CUstream stream = 0; 
+    
+    const void* launch_param_ptr = static_cast<const void*>(&host_params);
     const size_t launch_param_size = sizeof(ParamsType);
+    
+    CUdeviceptr d_param = 0;
+    CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&d_param), launch_param_size));
+    CUDA_CHECK(cudaMemcpy(reinterpret_cast<void*>(d_param), launch_param_ptr, launch_param_size, cudaMemcpyHostToDevice));
 
-    CUDA_CHECK(cudaMalloc(reinterpret_cast<void**>(&launch.d_param_), launch_param_size));
-    CUDA_CHECK(cudaMemcpy(reinterpret_cast<void*>(launch.d_param_), launch_param_ptr, launch_param_size,
-                          cudaMemcpyHostToDevice));
+    OPTIX_CHECK(optixLaunch(pipelines_.at(pipeline_name).pipeline_, stream, d_param, launch_param_size, &sbts_.at(sbt_name).get_sbt(), width, height, depth));
 
-    if constexpr (std::is_same_v<ParamsType, Params>) {
-      OPTIX_CHECK(optixLaunch(pipeline, launch.stream_, launch.d_param_, launch_param_size, &sbt, params_.image_width,
-                              params_.image_height,
-                              depth=1));
-  }
-  else if constexpr (std::is_same_v<ParamsType, PointCloudLaunchParams>) {
-    OPTIX_CHECK(optixLaunch(pipeline, launch.stream_, launch.d_param_, launch_param_size, &sbt, params_.image_width,
-                            params_.image_height, depth=1));
-  }
-
-  CUDA_CHECK(cudaStreamSynchronize(launch.stream_));
-  CUDA_CHECK(cudaFree(reinterpret_cast<void*>(launch.d_param_)));
-  */
+    CUDA_CHECK(cudaStreamSynchronize(stream));
+    CUDA_CHECK(cudaFree(reinterpret_cast<void*>(d_param)));
   }
 
   // Default log callback for the context
