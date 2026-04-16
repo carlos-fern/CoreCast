@@ -1,0 +1,28 @@
+services:
+  dev:
+    image: corecast/dev:jazzy-24.04
+    container_name: corecast-jazzy-dev
+    volumes:
+      # Mirroring the workspaceMount
+      - /home/carlos/repos/CoreCast:/workspaces/CoreCast
+    working_dir: /workspaces/CoreCast
+    # This keeps the container running so you can exec into it
+    tty: true
+    stdin_open: true
+    
+    # Mirroring runArgs: ["--gpus=all"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+    # Mirroring updateRemoteUserUID (best practice for Linux)
+    user: "${UID}:${GID}"
+
+    # Mirroring postCreateCommand
+    # Note: Compose doesn't have a direct 'postCreate'. We use an entrypoint 
+    # tweak or manually run a setup script. To keep it simple:
+    command: /bin/bash -c "echo \"alias build='(cd /workspaces/CoreCast && cmake -G Ninja -S corecast_optix -B build/corecast_optix -DOPTIX_SDK_PATH=/workspaces/CoreCast/third_party/NVIDIA-OptiX-SDK-9.0.0-linux64-x86_64 -DCMAKE_BUILD_TYPE=Release && cmake --build build/corecast_optix -j)'\" >> ~/.bashrc && tail -f /dev/null"

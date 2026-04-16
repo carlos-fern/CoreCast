@@ -35,6 +35,7 @@ devcontainer-image:
         libx11-dev \
         libeigen3-dev \
         libyaml-cpp-dev \
+        g++-14 \
         && rm -rf /var/lib/apt/lists/*
 
     RUN apt-get update && apt-get install -y --no-install-recommends \
